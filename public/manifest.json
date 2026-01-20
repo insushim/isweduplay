@@ -1,0 +1,17 @@
+{
+  "name": "EDUPLAY KOREA",
+  "short_name": "EDUPLAY",
+  "description": "배움이 놀이가 되는 순간 - AI 학습 게임 포털",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
