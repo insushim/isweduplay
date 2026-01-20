@@ -1,33 +1,51 @@
 'use client'
 
-import { useAuth } from '@/hooks/use-auth'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { GAME_MODE_CONFIG, type GameType } from '@/types/game'
 
-// Calculate level progress
-function calculateLevelProgress(experience: number) {
-  const baseExp = 100
-  const multiplier = 1.5
-  let level = 1
-  let totalExp = 0
-  let currentLevelExp = baseExp
-
-  while (experience >= totalExp + currentLevelExp) {
-    totalExp += currentLevelExp
-    level++
-    currentLevelExp = Math.floor(baseExp * Math.pow(multiplier, level - 1))
-  }
-
-  const expInCurrentLevel = experience - totalExp
-  const progress = (expInCurrentLevel / currentLevelExp) * 100
-
-  return { level, progress, expInCurrentLevel, nextLevelExp: currentLevelExp }
+interface DashboardData {
+  user: {
+    id: string
+    name: string
+    email: string
+    role: string
+    level: number
+    exp: number
+    expProgress: number
+    expNeeded: number
+    totalScore: number
+    coins: number
+    avatarUrl?: string
+  } | null
+  stats: {
+    gamesPlayed: number
+    gamesWon: number
+    winRate: number
+    currentStreak: number
+    maxStreak: number
+    achievementsUnlocked: number
+    totalAchievements: number
+  } | null
+  recentGames: {
+    id: string
+    gameType: GameType
+    title: string
+    score: number
+    rank: number
+    playedAt: string
+  }[]
+  teacherStats?: {
+    totalClassrooms: number
+    totalStudents: number
+    totalQuizSets: number
+  } | null
 }
 
 // Level title based on level
@@ -47,12 +65,50 @@ function getLevelTitle(level: number) {
   return titles[Math.min(Math.floor(level / 5), titles.length - 1)]
 }
 
-export default function DashboardPage() {
-  const { user, isLoading } = useAuth()
+// Format relative time
+function formatRelativeTime(dateString: string) {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
 
-  if (isLoading) {
+  if (minutes < 1) return '방금 전'
+  if (minutes < 60) return `${minutes}분 전`
+  if (hours < 24) return `${hours}시간 전`
+  if (days < 7) return `${days}일 전`
+  return date.toLocaleDateString('ko-KR')
+}
+
+export default function DashboardPage() {
+  const { data: session, status } = useSession()
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchDashboardData()
+    } else if (status === 'unauthenticated') {
+      setLoading(false)
+    }
+  }, [status])
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch('/api/dashboard')
+      const data = await response.json()
+      setDashboardData(data)
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading || status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -62,24 +118,11 @@ export default function DashboardPage() {
     )
   }
 
-  const levelData = calculateLevelProgress(user?.experience ?? 0)
+  const user = dashboardData?.user
+  const stats = dashboardData?.stats
+  const recentGames = dashboardData?.recentGames || []
+  const teacherStats = dashboardData?.teacherStats
   const levelTitle = getLevelTitle(user?.level ?? 1)
-
-  // Mock recent games data
-  const recentGames = [
-    { id: '1', type: 'QUIZ_BATTLE', score: 850, rank: 2, date: '10분 전' },
-    { id: '2', type: 'SPEED_RACE', score: 1200, rank: 1, date: '1시간 전' },
-    { id: '3', type: 'SURVIVAL', score: 600, rank: 5, date: '3시간 전' },
-  ]
-
-  // Mock weekly ranking
-  const weeklyRanking = [
-    { rank: 1, name: '퀴즈왕', points: 15420, avatar: '👑' },
-    { rank: 2, name: '학습마스터', points: 12300, avatar: '🥈' },
-    { rank: 3, name: '게임천재', points: 11890, avatar: '🥉' },
-    { rank: 4, name: user?.name ?? '나', points: user?.totalPoints ?? 0, isMe: true },
-    { rank: 5, name: '도전자', points: 8500, avatar: '⭐' },
-  ]
 
   // Game modes for quick access
   const featuredGames: GameType[] = ['QUIZ_BATTLE', 'SPEED_RACE', 'SURVIVAL', 'TEAM_BATTLE', 'TOWER_DEFENSE', 'WORD_HUNT']
@@ -95,7 +138,7 @@ export default function DashboardPage() {
         >
           <div>
             <h1 className="text-3xl font-bold text-white">
-              안녕하세요, {user?.name ?? '플레이어'}님! 👋
+              안녕하세요, {user?.name ?? session?.user?.name ?? '플레이어'}님! 👋
             </h1>
             <p className="text-gray-400">오늘도 즐거운 학습 되세요!</p>
           </div>
@@ -131,9 +174,9 @@ export default function DashboardPage() {
                     <p className="text-gray-400 text-sm">레벨</p>
                     <p className="text-white font-bold text-lg">{levelTitle}</p>
                     <div className="mt-2">
-                      <Progress value={levelData.progress} className="h-2" />
+                      <Progress value={user?.expNeeded ? (user.expProgress / user.expNeeded) * 100 : 0} className="h-2" />
                       <p className="text-xs text-gray-400 mt-1">
-                        {levelData.expInCurrentLevel} / {levelData.nextLevelExp} XP
+                        {user?.expProgress ?? 0} / {user?.expNeeded ?? 100} XP
                       </p>
                     </div>
                   </div>
@@ -155,11 +198,11 @@ export default function DashboardPage() {
                     ⭐
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">총 포인트</p>
+                    <p className="text-gray-400 text-sm">총 점수</p>
                     <p className="text-3xl font-bold text-white">
-                      {(user?.totalPoints ?? 0).toLocaleString()}
+                      {(user?.totalScore ?? 0).toLocaleString()}
                     </p>
-                    <p className="text-sm text-green-400">+1,250 이번 주</p>
+                    <p className="text-sm text-yellow-400">🪙 {user?.coins ?? 0} 코인</p>
                   </div>
                 </div>
               </CardContent>
@@ -179,16 +222,16 @@ export default function DashboardPage() {
                     🔥
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">연속 학습</p>
-                    <p className="text-3xl font-bold text-white">7일</p>
-                    <p className="text-sm text-yellow-400">최고 기록: 15일</p>
+                    <p className="text-gray-400 text-sm">연속 정답</p>
+                    <p className="text-3xl font-bold text-white">{stats?.currentStreak ?? 0}회</p>
+                    <p className="text-sm text-yellow-400">최고: {stats?.maxStreak ?? 0}회</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Weekly Rank Card */}
+          {/* Games Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -201,9 +244,11 @@ export default function DashboardPage() {
                     🏆
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">주간 순위</p>
-                    <p className="text-3xl font-bold text-white">#4</p>
-                    <p className="text-sm text-cyan-400">상위 10%</p>
+                    <p className="text-gray-400 text-sm">플레이 게임</p>
+                    <p className="text-3xl font-bold text-white">{stats?.gamesPlayed ?? 0}</p>
+                    <p className="text-sm text-cyan-400">
+                      승률 {stats?.winRate ?? 0}% ({stats?.gamesWon ?? 0}승)
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -238,7 +283,7 @@ export default function DashboardPage() {
                         <motion.div
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className={`p-4 rounded-xl bg-gradient-to-br ${config.color} cursor-pointer transition-all hover:shadow-lg hover:shadow-${config.color.split('-')[1]}-500/20`}
+                          className={`p-4 rounded-xl bg-gradient-to-br ${config.color} cursor-pointer transition-all hover:shadow-lg`}
                         >
                           <div className="text-4xl mb-2">{config.icon}</div>
                           <h3 className="font-bold text-white">{config.name}</h3>
@@ -264,7 +309,7 @@ export default function DashboardPage() {
             </Card>
           </motion.div>
 
-          {/* Weekly Leaderboard */}
+          {/* Achievements */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -273,59 +318,27 @@ export default function DashboardPage() {
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  🏅 주간 랭킹
+                  🏅 업적
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  이번 주 포인트 순위
+                  도전하고 보상을 받으세요
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {weeklyRanking.map((player, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.7 + index * 0.1 }}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${
-                        player.isMe
-                          ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30'
-                          : 'bg-white/5'
-                      }`}
-                    >
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold ${
-                          player.rank === 1
-                            ? 'bg-yellow-500 text-black'
-                            : player.rank === 2
-                            ? 'bg-gray-400 text-black'
-                            : player.rank === 3
-                            ? 'bg-amber-700 text-white'
-                            : 'bg-white/10 text-white'
-                        }`}
-                      >
-                        {player.rank <= 3 ? player.avatar : player.rank}
-                      </div>
-                      <div className="flex-1">
-                        <p className={`font-medium ${player.isMe ? 'text-purple-300' : 'text-white'}`}>
-                          {player.name}
-                          {player.isMe && <span className="text-xs ml-2">(나)</span>}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {player.points.toLocaleString()} 포인트
-                        </p>
-                      </div>
-                      {player.rank <= 3 && (
-                        <div className="text-2xl">
-                          {player.rank === 1 ? '👑' : player.rank === 2 ? '🥈' : '🥉'}
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+                <div className="text-center py-4">
+                  <div className="text-5xl mb-2">🎖️</div>
+                  <p className="text-3xl font-bold text-white">
+                    {stats?.achievementsUnlocked ?? 0} / {stats?.totalAchievements ?? 0}
+                  </p>
+                  <p className="text-gray-400 text-sm">업적 달성</p>
+                  <Progress
+                    value={stats?.totalAchievements ? (stats.achievementsUnlocked / stats.totalAchievements) * 100 : 0}
+                    className="mt-4 h-2"
+                  />
                 </div>
-                <Link href="/leaderboard">
+                <Link href="/achievements">
                   <Button variant="ghost" className="w-full mt-4 text-gray-400 hover:text-white">
-                    전체 순위 보기 →
+                    전체 업적 보기 →
                   </Button>
                 </Link>
               </CardContent>
@@ -349,52 +362,60 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {recentGames.map((game, index) => {
-                  const config = GAME_MODE_CONFIG[game.type as GameType]
-                  return (
-                    <motion.div
-                      key={game.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.9 + index * 0.1 }}
-                      className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center text-xl`}
-                        >
-                          {config.icon}
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{config.name}</p>
-                          <p className="text-xs text-gray-400">{game.date}</p>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm text-gray-400">점수</p>
-                          <p className="text-xl font-bold text-white">{game.score}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-400">순위</p>
-                          <p
-                            className={`text-xl font-bold ${
-                              game.rank === 1
-                                ? 'text-yellow-400'
-                                : game.rank <= 3
-                                ? 'text-blue-400'
-                                : 'text-white'
-                            }`}
+              {recentGames.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <div className="text-4xl mb-2">🎮</div>
+                  <p>아직 플레이한 게임이 없습니다</p>
+                  <p className="text-sm">게임을 시작해보세요!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {recentGames.map((game, index) => {
+                    const config = GAME_MODE_CONFIG[game.gameType]
+                    return (
+                      <motion.div
+                        key={game.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9 + index * 0.1 }}
+                        className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <div
+                            className={`w-10 h-10 rounded-lg bg-gradient-to-br ${config?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center text-xl`}
                           >
-                            #{game.rank}
-                          </p>
+                            {config?.icon || '🎮'}
+                          </div>
+                          <div>
+                            <p className="font-medium text-white">{game.title}</p>
+                            <p className="text-xs text-gray-400">{formatRelativeTime(game.playedAt)}</p>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </div>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-sm text-gray-400">점수</p>
+                            <p className="text-xl font-bold text-white">{game.score.toLocaleString()}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-400">순위</p>
+                            <p
+                              className={`text-xl font-bold ${
+                                game.rank === 1
+                                  ? 'text-yellow-400'
+                                  : game.rank <= 3
+                                  ? 'text-blue-400'
+                                  : 'text-white'
+                              }`}
+                            >
+                              #{game.rank}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
               <Link href="/history">
                 <Button variant="ghost" className="w-full mt-4 text-gray-400 hover:text-white">
                   전체 기록 보기 →
@@ -405,7 +426,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Quick Actions for Teachers */}
-        {user?.role === 'TEACHER' && (
+        {(user?.role === 'TEACHER' || session?.user?.role === 'TEACHER') && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -413,34 +434,54 @@ export default function DashboardPage() {
           >
             <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  👨‍🏫 교사 도구
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  수업 관리 및 퀴즈 생성
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      👨‍🏫 교사 도구
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      수업 관리 및 퀴즈 생성
+                    </CardDescription>
+                  </div>
+                  {teacherStats && (
+                    <div className="flex gap-6 text-right">
+                      <div>
+                        <p className="text-2xl font-bold text-white">{teacherStats.totalClassrooms}</p>
+                        <p className="text-xs text-gray-400">학급</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{teacherStats.totalStudents}</p>
+                        <p className="text-xs text-gray-400">학생</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{teacherStats.totalQuizSets}</p>
+                        <p className="text-xs text-gray-400">퀴즈</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Link href="/classroom/create">
+                  <Link href="/classroom">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-4 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer text-center"
                     >
                       <div className="text-3xl mb-2">🏫</div>
-                      <p className="text-white font-medium">학급 생성</p>
+                      <p className="text-white font-medium">학급 관리</p>
                     </motion.div>
                   </Link>
-                  <Link href="/quiz/create">
+                  <Link href="/quiz/manage">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-4 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer text-center"
                     >
                       <div className="text-3xl mb-2">📝</div>
-                      <p className="text-white font-medium">퀴즈 만들기</p>
+                      <p className="text-white font-medium">퀴즈 관리</p>
                     </motion.div>
                   </Link>
-                  <Link href="/quiz/ai">
+                  <Link href="/quiz/create">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="p-4 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer text-center"
