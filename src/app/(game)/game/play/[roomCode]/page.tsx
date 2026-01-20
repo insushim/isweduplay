@@ -1,26 +1,40 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useGameStore } from '@/stores/game-store'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import type { GameStatus, Question, GamePlayer, LeaderboardEntry } from '@/types/game'
 
+// Types
+interface GameData {
+  id: string
+  roomCode: string
+  gameType: string
+  status: string
+  hostId: string
+  quizSetId?: string
+  settings: {
+    timeLimit: number
+    questionCount: number
+  }
+  questions: Question[]
+}
+
 // Game Components
 function WaitingRoom({
-  players,
   roomCode,
   isHost,
+  playerCount,
   onStart,
 }: {
-  players: GamePlayer[]
   roomCode: string
   isHost: boolean
+  playerCount: number
   onStart: () => void
 }) {
   return (
@@ -49,64 +63,24 @@ function WaitingRoom({
                   </div>
                 ))}
               </motion.div>
+              <p className="text-sm text-white/60 mt-4">
+                이 코드를 학생들에게 공유하세요
+              </p>
             </div>
 
-            {/* Players List */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-gray-400">참가자</p>
-                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-0">
-                  {players.length}명
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                <AnimatePresence>
-                  {players.map((player, index) => (
-                    <motion.div
-                      key={player.id}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <div
-                        className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl ${
-                          player.isHost
-                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500 ring-2 ring-yellow-300'
-                            : 'bg-gradient-to-br from-purple-500 to-pink-500'
-                        }`}
-                      >
-                        {player.avatarUrl || '😊'}
-                      </div>
-                      <p className="text-white text-sm truncate max-w-full">
-                        {player.nickname}
-                        {player.isHost && ' 👑'}
-                      </p>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-
-                {/* Waiting slots */}
-                {[...Array(Math.max(0, 5 - players.length))].map((_, i) => (
-                  <motion.div
-                    key={`empty-${i}`}
-                    animate={{ opacity: [0.3, 0.5, 0.3] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="flex flex-col items-center gap-2"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-white/10 border-2 border-dashed border-white/20 flex items-center justify-center text-gray-500">
-                      ?
-                    </div>
-                    <p className="text-gray-500 text-sm">대기 중...</p>
-                  </motion.div>
-                ))}
+            {/* Player Count */}
+            <div className="py-6 border-y border-white/10">
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-6xl">👥</div>
+                <div className="text-left">
+                  <p className="text-4xl font-bold text-white">{playerCount}</p>
+                  <p className="text-gray-400">명 참가</p>
+                </div>
               </div>
             </div>
 
             {/* Start Button (Host only) */}
-            {isHost && (
+            {isHost ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -114,18 +88,15 @@ function WaitingRoom({
               >
                 <Button
                   onClick={onStart}
-                  disabled={players.length < 1}
-                  className="w-full md:w-auto px-12 py-6 text-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50"
+                  className="w-full md:w-auto px-12 py-6 text-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                 >
                   🚀 게임 시작
                 </Button>
                 <p className="text-gray-500 text-sm mt-2">
-                  {players.length < 1 ? '최소 1명이 필요합니다' : '모든 참가자가 준비되면 시작하세요'}
+                  준비가 되면 시작하세요
                 </p>
               </motion.div>
-            )}
-
-            {!isHost && (
+            ) : (
               <div className="space-y-4">
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
@@ -247,11 +218,11 @@ function QuestionScreen({
                 whileTap={!hasAnswered ? { scale: 0.98 } : {}}
                 onClick={() => !hasAnswered && onAnswer(option)}
                 disabled={hasAnswered}
-                className={`p-6 rounded-xl bg-gradient-to-r ${colors[index]} text-white font-bold text-xl shadow-lg transition-all ${
+                className={`p-6 rounded-xl bg-gradient-to-r ${colors[index % 4]} text-white font-bold text-xl shadow-lg transition-all ${
                   isSelected ? 'ring-4 ring-white' : ''
                 } ${isDisabled ? 'opacity-50' : 'hover:shadow-xl'}`}
               >
-                <span className="text-3xl mr-3">{icons[index]}</span>
+                <span className="text-3xl mr-3">{icons[index % 4]}</span>
                 {option}
               </motion.button>
             )
@@ -350,80 +321,42 @@ function ResultsScreen({
   )
 }
 
-function LeaderboardScreen({
-  leaderboard,
-  currentPlayerId,
-}: {
-  leaderboard: LeaderboardEntry[]
-  currentPlayerId: string
-}) {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 flex items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="w-full max-w-md"
-      >
-        <h2 className="text-3xl font-bold text-white text-center mb-8">
-          🏆 현재 순위
-        </h2>
-
-        <div className="space-y-3">
-          {leaderboard.slice(0, 5).map((entry, index) => {
-            const isMe = entry.playerId === currentPlayerId
-            const medals = ['🥇', '🥈', '🥉']
-
-            return (
-              <motion.div
-                key={entry.playerId}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`flex items-center gap-4 p-4 rounded-xl ${
-                  isMe
-                    ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/50'
-                    : 'bg-white/5'
-                }`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
-                    index < 3
-                      ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
-                      : 'bg-white/10'
-                  }`}
-                >
-                  {index < 3 ? medals[index] : entry.rank}
-                </div>
-                <div className="flex-1">
-                  <p className={`font-medium ${isMe ? 'text-purple-300' : 'text-white'}`}>
-                    {entry.playerName} {isMe && '(나)'}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    🔥 {entry.streak}연속 | ✓ {entry.correctCount}개
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold text-white">{entry.score}</p>
-                  <p className="text-xs text-gray-400">포인트</p>
-                </div>
-              </motion.div>
-            )
-          })}
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
 function FinalResultsScreen({
-  results,
-  currentPlayerId,
+  score,
+  correctCount,
+  totalQuestions,
+  maxStreak,
 }: {
-  results: LeaderboardEntry[]
-  currentPlayerId: string
+  score: number
+  correctCount: number
+  totalQuestions: number
+  maxStreak: number
 }) {
-  const myResult = results.find((r) => r.playerId === currentPlayerId)
-  const myRank = myResult?.rank || 0
+  const router = useRouter()
+  const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0
+
+  // 등수 결정 (솔로 플레이에서는 점수 기반)
+  let rank = 1
+  let rankIcon = '🏆'
+  let rankMessage = '훌륭해요!'
+
+  if (accuracy >= 80) {
+    rank = 1
+    rankIcon = '🏆'
+    rankMessage = '훌륭해요!'
+  } else if (accuracy >= 60) {
+    rank = 2
+    rankIcon = '🥈'
+    rankMessage = '잘했어요!'
+  } else if (accuracy >= 40) {
+    rank = 3
+    rankIcon = '🥉'
+    rankMessage = '좋아요!'
+  } else {
+    rank = 4
+    rankIcon = '⭐'
+    rankMessage = '다음엔 더 잘할 수 있어요!'
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
@@ -434,87 +367,50 @@ function FinalResultsScreen({
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          {myRank === 1 ? (
-            <>
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="text-[100px]"
-              >
-                🏆
-              </motion.div>
-              <h1 className="text-4xl font-bold text-yellow-400">축하합니다!</h1>
-              <p className="text-gray-400">1등을 차지했어요!</p>
-            </>
-          ) : myRank <= 3 ? (
-            <>
-              <div className="text-[80px]">{myRank === 2 ? '🥈' : '🥉'}</div>
-              <h1 className="text-3xl font-bold text-white">잘했어요!</h1>
-              <p className="text-gray-400">{myRank}등을 차지했어요!</p>
-            </>
-          ) : (
-            <>
-              <div className="text-[80px]">⭐</div>
-              <h1 className="text-3xl font-bold text-white">게임 종료!</h1>
-              <p className="text-gray-400">{myRank}등을 차지했어요</p>
-            </>
-          )}
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 1, repeat: 3 }}
+            className="text-[100px]"
+          >
+            {rankIcon}
+          </motion.div>
+          <h1 className="text-4xl font-bold text-white">{rankMessage}</h1>
+          <p className="text-gray-400 mt-2">정확도 {accuracy}%</p>
         </motion.div>
 
         {/* My stats */}
-        {myResult && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-3 gap-4"
-          >
-            <div className="bg-white/10 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-white">{myResult.score}</p>
-              <p className="text-sm text-gray-400">총 점수</p>
-            </div>
-            <div className="bg-white/10 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-green-400">{myResult.correctCount}</p>
-              <p className="text-sm text-gray-400">정답</p>
-            </div>
-            <div className="bg-white/10 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-orange-400">{myResult.streak}</p>
-              <p className="text-sm text-gray-400">최대 연속</p>
-            </div>
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-3 gap-4"
+        >
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <p className="text-3xl font-bold text-white">{score}</p>
+            <p className="text-sm text-gray-400">총 점수</p>
+          </div>
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <p className="text-3xl font-bold text-green-400">{correctCount}</p>
+            <p className="text-sm text-gray-400">정답</p>
+          </div>
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <p className="text-3xl font-bold text-orange-400">{maxStreak}</p>
+            <p className="text-sm text-gray-400">최대 연속</p>
+          </div>
+        </motion.div>
 
-        {/* Final leaderboard */}
+        {/* Progress bar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
+          className="space-y-2"
         >
-          <h3 className="text-xl font-bold text-white mb-4">최종 순위</h3>
-          <div className="space-y-2">
-            {results.map((entry, index) => {
-              const isMe = entry.playerId === currentPlayerId
-              return (
-                <motion.div
-                  key={entry.playerId}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.05 }}
-                  className={`flex items-center gap-3 p-3 rounded-lg ${
-                    isMe ? 'bg-purple-500/20 border border-purple-500/30' : 'bg-white/5'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-white">
-                    {entry.rank}
-                  </div>
-                  <p className={`flex-1 ${isMe ? 'text-purple-300' : 'text-white'}`}>
-                    {entry.playerName}
-                  </p>
-                  <p className="font-bold text-white">{entry.score}</p>
-                </motion.div>
-              )
-            })}
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">정답률</span>
+            <span className="text-white">{correctCount} / {totalQuestions}</span>
           </div>
+          <Progress value={accuracy} className="h-3" />
         </motion.div>
 
         {/* Actions */}
@@ -531,9 +427,9 @@ function FinalResultsScreen({
             🔄 다시 하기
           </Button>
           <Button
-            onClick={() => (window.location.href = '/dashboard')}
+            onClick={() => router.push('/dashboard')}
             variant="outline"
-            className="border-white/20 text-white"
+            className="border-white/20 text-white hover:bg-white/10"
           >
             🏠 대시보드로
           </Button>
@@ -546,30 +442,14 @@ function FinalResultsScreen({
 // Main Game Component
 export default function GamePlayPage() {
   const params = useParams()
-  const searchParams = useSearchParams()
+  const router = useRouter()
+  const { data: session } = useSession()
   const roomCode = params.roomCode as string
-  const nickname = searchParams.get('nickname') || '플레이어'
 
-  const {
-    status,
-    currentQuestion,
-    currentQuestionIndex,
-    totalQuestions,
-    timeRemaining,
-    players,
-    leaderboard,
-    currentPlayer,
-    score,
-    streak,
-    setStatus,
-    setCurrentQuestion,
-    setTimeRemaining,
-    setPlayers,
-    setCurrentPlayer,
-    setLeaderboard,
-    submitAnswer,
-  } = useGameStore()
-
+  const [gameData, setGameData] = useState<GameData | null>(null)
+  const [status, setStatus] = useState<GameStatus>('WAITING')
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(30)
   const [countdownSeconds, setCountdownSeconds] = useState(3)
   const [hasAnswered, setHasAnswered] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
@@ -578,56 +458,48 @@ export default function GamePlayPage() {
     points: number
   } | null>(null)
 
-  // Initialize player
-  useEffect(() => {
-    const player: GamePlayer = {
-      id: `player-${Date.now()}`,
-      nickname,
-      score: 0,
-      streak: 0,
-      maxStreak: 0,
-      correctCount: 0,
-      wrongCount: 0,
-      coins: 0,
-      powerUps: {
-        doublePoints: 1,
-        extraTime: 1,
-        fiftyFifty: 1,
-        shield: 1,
-        freeze: 0,
-      },
-      isHost: false,
-      isConnected: true,
-      isEliminated: false,
-    }
-    setCurrentPlayer(player)
+  // 게임 통계
+  const [score, setScore] = useState(0)
+  const [streak, setStreak] = useState(0)
+  const [maxStreak, setMaxStreak] = useState(0)
+  const [correctCount, setCorrectCount] = useState(0)
 
-    // Mock: Add some other players
-    setPlayers([
-      player,
-      {
-        ...player,
-        id: 'host',
-        nickname: '선생님',
-        isHost: true,
-        avatarUrl: '👨‍🏫',
-      },
-      { ...player, id: 'p2', nickname: '학생1', avatarUrl: '🦊' },
-      { ...player, id: 'p3', nickname: '학생2', avatarUrl: '🐱' },
-    ])
-  }, [nickname, setCurrentPlayer, setPlayers])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Mock game flow for demo
+  // 게임 데이터 로드
   useEffect(() => {
-    // Demo: Start countdown after 3 seconds in waiting
-    const waitTimer = setTimeout(() => {
-      if (status === 'WAITING') {
-        setStatus('COUNTDOWN')
+    const fetchGameData = async () => {
+      try {
+        const response = await fetch(`/api/game/room/${roomCode}`)
+        if (!response.ok) {
+          throw new Error('게임을 찾을 수 없습니다')
+        }
+        const data = await response.json()
+        setGameData(data.game)
+        setTimeRemaining(data.game?.settings?.timeLimit || 30)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '게임 로드 실패')
+      } finally {
+        setLoading(false)
       }
-    }, 3000)
+    }
 
-    return () => clearTimeout(waitTimer)
-  }, [status, setStatus])
+    fetchGameData()
+  }, [roomCode])
+
+  const isHost = gameData?.hostId === session?.user?.id
+  const currentQuestion = gameData?.questions?.[currentQuestionIndex]
+  const totalQuestions = gameData?.questions?.length || 0
+
+  // 게임 시작 처리
+  const handleStartGame = useCallback(() => {
+    if (!gameData?.questions?.length) {
+      alert('퀴즈 문제가 없습니다. 퀴즈셋을 먼저 선택해주세요.')
+      return
+    }
+    setStatus('COUNTDOWN')
+  }, [gameData])
 
   // Countdown timer
   useEffect(() => {
@@ -638,8 +510,7 @@ export default function GamePlayPage() {
         if (prev <= 1) {
           clearInterval(timer)
           setStatus('IN_PROGRESS')
-          // Load first question
-          setCurrentQuestion(mockQuestion, 0, 5)
+          setTimeRemaining(gameData?.settings?.timeLimit || 30)
           return 3
         }
         return prev - 1
@@ -647,41 +518,57 @@ export default function GamePlayPage() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [status, setStatus, setCurrentQuestion])
+  }, [status, gameData])
 
   // Question timer
   useEffect(() => {
     if (status !== 'IN_PROGRESS' || !currentQuestion) return
 
     const timer = setInterval(() => {
-      setTimeRemaining(timeRemaining - 1)
-      if (timeRemaining <= 1) {
-        clearInterval(timer)
-        // Time's up - show results
-        if (!hasAnswered) {
-          setLastAnswerResult({ isCorrect: false, points: 0 })
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          // Time's up
+          if (!hasAnswered) {
+            setLastAnswerResult({ isCorrect: false, points: 0 })
+            setStreak(0)
+          }
+          setStatus('SHOWING_RESULTS')
+          return 0
         }
-        setStatus('SHOWING_RESULTS')
-      }
+        return prev - 1
+      })
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [status, currentQuestion, timeRemaining, hasAnswered, setStatus, setTimeRemaining])
+  }, [status, currentQuestion, hasAnswered])
 
   // Handle answer submission
   const handleAnswer = useCallback(
     (answer: string) => {
-      if (hasAnswered) return
+      if (hasAnswered || !currentQuestion) return
 
       setSelectedAnswer(answer)
       setHasAnswered(true)
 
-      const isCorrect = answer === mockQuestion.answer
+      const isCorrect = answer === currentQuestion.answer
+      const timeLimit = currentQuestion.timeLimit || 30
       const points = isCorrect
-        ? Math.floor(100 * (timeRemaining / mockQuestion.timeLimit)) + 50
+        ? Math.floor(100 * (timeRemaining / timeLimit)) + 50
         : 0
 
-      submitAnswer(answer, isCorrect, points)
+      if (isCorrect) {
+        setScore((prev) => prev + points)
+        setCorrectCount((prev) => prev + 1)
+        setStreak((prev) => {
+          const newStreak = prev + 1
+          setMaxStreak((max) => Math.max(max, newStreak))
+          return newStreak
+        })
+      } else {
+        setStreak(0)
+      }
+
       setLastAnswerResult({ isCorrect, points })
 
       // Show results after a short delay
@@ -689,7 +576,7 @@ export default function GamePlayPage() {
         setStatus('SHOWING_RESULTS')
       }, 1000)
     },
-    [hasAnswered, timeRemaining, submitAnswer, setStatus]
+    [hasAnswered, currentQuestion, timeRemaining]
   )
 
   // Move to next question or finish
@@ -702,64 +589,76 @@ export default function GamePlayPage() {
         setHasAnswered(false)
         setSelectedAnswer(null)
         setLastAnswerResult(null)
-        setCurrentQuestion(mockQuestion, currentQuestionIndex + 1, totalQuestions)
+        setCurrentQuestionIndex((prev) => prev + 1)
+        setTimeRemaining(gameData?.settings?.timeLimit || 30)
         setStatus('IN_PROGRESS')
       } else {
         // Game finished
-        setLeaderboard([
-          {
-            playerId: currentPlayer?.id || '',
-            playerName: currentPlayer?.nickname || '',
-            score,
-            rank: 2,
-            streak,
-            correctCount: 3,
-          },
-          {
-            playerId: 'host',
-            playerName: '선생님',
-            score: 1500,
-            rank: 1,
-            streak: 5,
-            correctCount: 5,
-          },
-          {
-            playerId: 'p2',
-            playerName: '학생1',
-            score: 800,
-            rank: 3,
-            streak: 2,
-            correctCount: 3,
-          },
-        ])
         setStatus('FINISHED')
       }
     }, 3000)
 
     return () => clearTimeout(timer)
-  }, [
-    status,
-    currentQuestionIndex,
-    totalQuestions,
-    currentPlayer,
-    score,
-    streak,
-    setStatus,
-    setCurrentQuestion,
-    setLeaderboard,
-  ])
+  }, [status, currentQuestionIndex, totalQuestions, gameData])
 
-  // Mock question for demo
-  const mockQuestion: Question = {
-    id: '1',
-    type: 'MULTIPLE_CHOICE',
-    content: '대한민국의 수도는 어디인가요?',
-    options: ['서울', '부산', '대구', '인천'],
-    answer: '서울',
-    explanation: '서울은 대한민국의 수도이자 최대 도시입니다.',
-    timeLimit: 30,
-    points: 100,
-    difficulty: 1,
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full"
+        />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !gameData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+        <Card className="p-8 bg-white/10 border-white/20 text-center max-w-md">
+          <div className="text-6xl mb-4">😢</div>
+          <h2 className="text-2xl font-bold text-white mb-2">오류</h2>
+          <p className="text-gray-400 mb-6">{error || '게임을 찾을 수 없습니다'}</p>
+          <Button
+            onClick={() => router.push('/dashboard')}
+            className="bg-gradient-to-r from-purple-500 to-pink-500"
+          >
+            대시보드로 돌아가기
+          </Button>
+        </Card>
+      </div>
+    )
+  }
+
+  // No questions
+  if (status === 'WAITING' && (!gameData.questions || gameData.questions.length === 0)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+        <Card className="p-8 bg-white/10 border-white/20 text-center max-w-md">
+          <div className="text-6xl mb-4">📝</div>
+          <h2 className="text-2xl font-bold text-white mb-2">퀴즈가 없습니다</h2>
+          <p className="text-gray-400 mb-6">이 게임에는 퀴즈 문제가 설정되지 않았습니다.</p>
+          <div className="space-y-3">
+            <Button
+              onClick={() => router.push('/game/create')}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+            >
+              새 게임 만들기
+            </Button>
+            <Button
+              onClick={() => router.push('/dashboard')}
+              variant="outline"
+              className="w-full border-white/20 text-white hover:bg-white/10"
+            >
+              대시보드로 돌아가기
+            </Button>
+          </div>
+        </Card>
+      </div>
+    )
   }
 
   // Render based on game status
@@ -767,10 +666,10 @@ export default function GamePlayPage() {
     case 'WAITING':
       return (
         <WaitingRoom
-          players={players}
           roomCode={roomCode}
-          isHost={currentPlayer?.isHost || false}
-          onStart={() => setStatus('COUNTDOWN')}
+          isHost={isHost}
+          playerCount={1}
+          onStart={handleStartGame}
         />
       )
 
@@ -791,21 +690,23 @@ export default function GamePlayPage() {
       ) : null
 
     case 'SHOWING_RESULTS':
-      return lastAnswerResult ? (
+      return lastAnswerResult && currentQuestion ? (
         <ResultsScreen
           isCorrect={lastAnswerResult.isCorrect}
           points={lastAnswerResult.points}
           streak={streak}
-          correctAnswer={mockQuestion.answer}
-          explanation={mockQuestion.explanation}
+          correctAnswer={currentQuestion.answer}
+          explanation={currentQuestion.explanation}
         />
       ) : null
 
     case 'FINISHED':
       return (
         <FinalResultsScreen
-          results={leaderboard}
-          currentPlayerId={currentPlayer?.id || ''}
+          score={score}
+          correctCount={correctCount}
+          totalQuestions={totalQuestions}
+          maxStreak={maxStreak}
         />
       )
 
