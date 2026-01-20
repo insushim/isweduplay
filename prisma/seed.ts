@@ -22,13 +22,12 @@ async function main() {
   // ==================== 레벨 설정 ====================
   console.log('Creating level configs...')
   const levels = []
-  let totalExp = 0
   for (let i = 1; i <= 100; i++) {
-    const requiredExp = Math.floor(100 * Math.pow(1.5, i - 1))
-    totalExp += requiredExp
+    // 적절한 경험치 곡선: 레벨 1 = 100, 레벨 100 = 약 500만
+    const requiredExp = Math.floor(100 * i * i + 50 * i)
     levels.push({
       level: i,
-      requiredExp: totalExp,
+      requiredExp,
       title: getLevelTitle(i),
       bonusMultiplier: 1 + (i - 1) * 0.02,
     })
