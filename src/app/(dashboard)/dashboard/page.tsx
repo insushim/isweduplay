@@ -108,7 +108,7 @@ export default function DashboardPage() {
 
   if (loading || status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -128,8 +128,8 @@ export default function DashboardPage() {
   const featuredGames: GameType[] = ['QUIZ_BATTLE', 'SPEED_RACE', 'SURVIVAL', 'TEAM_BATTLE', 'TOWER_DEFENSE', 'WORD_HUNT']
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8">
+      <div className="w-full max-w-[1600px] mx-auto space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

@@ -66,10 +66,10 @@ export default function DashboardLayout({
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -280 }}
-        animate={{ x: isSidebarOpen ? 0 : -280 }}
-        className="fixed lg:relative lg:translate-x-0 w-[280px] h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col"
+      <aside
+        className={`fixed lg:sticky lg:top-0 w-[280px] h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col transition-transform duration-300 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
       >
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
@@ -180,7 +180,7 @@ export default function DashboardLayout({
             로그아웃
           </Button>
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
