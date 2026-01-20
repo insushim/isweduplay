@@ -1,0 +1,585 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== 사용자 & 인증 ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  image         String?
+  role          UserRole  @default(STUDENT)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 게이미피케이션
+  totalPoints     Int      @default(0)
+  weeklyPoints    Int      @default(0)
+  monthlyPoints   Int      @default(0)
+  level           Int      @default(1)
+  experience      Int      @default(0)
+  coins           Int      @default(100)
+  streak          Int      @default(0)
+  maxStreak       Int      @default(0)
+  lastPlayedAt    DateTime?
+  gamesPlayed     Int      @default(0)
+  gamesWon        Int      @default(0)
+  totalCorrect    Int      @default(0)
+  totalAnswered   Int      @default(0)
+
+  // 관계
+  accounts          Account[]
+  sessions          Session[]
+  classroomsOwned   Classroom[]       @relation("ClassroomOwner")
+  enrollments       ClassroomMember[]
+  quizSets          QuizSet[]
+  gameSessions      GameSession[]     @relation("GameHost")
+  gameParticipations GamePlayer[]
+  gameResults       GameResult[]
+  achievements      UserAchievement[]
+  weeklyRankings    WeeklyRanking[]
+
+  @@index([email])
+  @@index([totalPoints])
+  @@index([weeklyPoints])
+  @@index([level])
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== 학급 관리 ====================
+
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  schoolLevel SchoolLevel @default(ELEMENTARY)
+  grade       Int      // 1-6 초등, 1-3 중등
+  classNumber Int?     // 반 번호
+  inviteCode  String   @unique @default(cuid())
+  isActive    Boolean  @default(true)
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner        User              @relation("ClassroomOwner", fields: [ownerId], references: [id])
+  members      ClassroomMember[]
+  gameSessions GameSession[]
+
+  @@index([inviteCode])
+  @@index([ownerId])
+}
+
+model ClassroomMember {
+  id          String   @id @default(cuid())
+  classroomId String
+  userId      String
+  nickname    String?
+  joinedAt    DateTime @default(now())
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, userId])
+}
+
+enum SchoolLevel {
+  ELEMENTARY  // 초등학교
+  MIDDLE      // 중학교
+  HIGH        // 고등학교
+}
+
+// ==================== 2022 개정 교육과정 ====================
+
+// 교과목
+model Subject {
+  id          String      @id @default(cuid())
+  code        String      @unique  // KOR, MATH, ENG, SOC, SCI, etc.
+  name        String      // 국어, 수학, 영어 등
+  description String?
+  iconUrl     String?
+  color       String      @default("#4F46E5")
+  schoolLevel SchoolLevel
+  createdAt   DateTime    @default(now())
+
+  curriculumAreas CurriculumArea[]
+  quizSets        QuizSet[]
+}
+
+// 교육과정 영역 (대단원 수준)
+model CurriculumArea {
+  id          String      @id @default(cuid())
+  subjectId   String
+  code        String      @unique  // 예: KOR-01, MATH-01
+  name        String      // 예: 듣기·말하기, 수와 연산
+  description String?     @db.Text
+  order       Int
+  createdAt   DateTime    @default(now())
+
+  subject         Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  contentElements ContentElement[]
+  achievementStandards AchievementStandard[]
+
+  @@index([subjectId])
+}
+
+// 내용 요소 (성취기준의 세부 내용)
+model ContentElement {
+  id               String   @id @default(cuid())
+  curriculumAreaId String
+  code             String   @unique  // 예: KOR-01-01
+  name             String
+  description      String?  @db.Text
+  gradeGroup       String   // 예: "1-2", "3-4", "5-6" (학년군)
+  order            Int
+  createdAt        DateTime @default(now())
+
+  curriculumArea CurriculumArea @relation(fields: [curriculumAreaId], references: [id], onDelete: Cascade)
+  achievementStandards AchievementStandard[]
+
+  @@index([curriculumAreaId])
+  @@index([gradeGroup])
+}
+
+// 성취기준 (2022 개정 교육과정 핵심)
+model AchievementStandard {
+  id               String   @id @default(cuid())
+  curriculumAreaId String
+  contentElementId String?
+  code             String   @unique  // 예: [2국01-01], [4수01-02]
+  gradeGroup       String   // 학년군: "1-2", "3-4", "5-6", "중1", "중2", "중3"
+  description      String   @db.Text // 성취기준 내용
+  explanation      String?  @db.Text // 성취기준 해설
+  keyCompetencies  String[] // 핵심 역량
+  teachingNotes    String?  @db.Text // 교수학습 방법 및 유의사항
+  evaluationNotes  String?  @db.Text // 평가 방법 및 유의사항
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  curriculumArea CurriculumArea  @relation(fields: [curriculumAreaId], references: [id], onDelete: Cascade)
+  contentElement ContentElement? @relation(fields: [contentElementId], references: [id])
+  learningElements LearningElement[]
+  questions        Question[]
+
+  @@index([curriculumAreaId])
+  @@index([gradeGroup])
+  @@index([code])
+}
+
+// 학습 요소 (성취기준 달성을 위한 구체적 학습 내용)
+model LearningElement {
+  id                    String   @id @default(cuid())
+  achievementStandardId String
+  name                  String   // 학습 요소명
+  description           String?  @db.Text
+  keywords              String[] // 핵심 키워드
+  vocabulary            String[] // 핵심 어휘
+  examples              Json?    // 예시 문제/상황
+  misconceptions        Json?    // 오개념 정보
+  prerequisites         String[] // 선수 학습 요소
+  difficulty            Int      @default(1) // 1-5
+  order                 Int
+  createdAt             DateTime @default(now())
+
+  achievementStandard AchievementStandard @relation(fields: [achievementStandardId], references: [id], onDelete: Cascade)
+  questions           Question[]
+
+  @@index([achievementStandardId])
+}
+
+// ==================== 문제 은행 ====================
+
+model Question {
+  id                    String       @id @default(cuid())
+  achievementStandardId String?      // 성취기준 연결
+  learningElementId     String?      // 학습요소 연결
+  type                  QuestionType
+  difficulty            Int          @default(1) // 1-5
+  bloomLevel            BloomLevel   @default(REMEMBER) // 블룸 인지수준
+  content               String       @db.Text    // 문제 내용
+  options               Json?        // 객관식 선택지 배열
+  answer                String       // 정답
+  answerExplanation     String?      @db.Text    // 정답 해설
+  wrongAnswerExplanation Json?       // 오답별 해설 {"A": "해설", "B": "해설"...}
+  hint                  String?
+  imageUrl              String?
+  audioUrl              String?
+  videoUrl              String?
+  timeLimit             Int          @default(30)
+  points                Int          @default(100)
+  tags                  String[]
+  source                String?      // 출처 (예: 교과서, 평가문항)
+  isAIGenerated         Boolean      @default(false)
+  isActive              Boolean      @default(true)
+  playCount             Int          @default(0)
+  correctRate           Float        @default(0)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  achievementStandard AchievementStandard? @relation(fields: [achievementStandardId], references: [id])
+  learningElement     LearningElement?     @relation(fields: [learningElementId], references: [id])
+  quizSetQuestions    QuizSetQuestion[]
+  gameAnswers         GameAnswer[]
+
+  @@index([achievementStandardId])
+  @@index([learningElementId])
+  @@index([type, difficulty])
+  @@index([bloomLevel])
+  @@index([isActive, playCount])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE   // 4지선다
+  MULTIPLE_ANSWER   // 다답형
+  TRUE_FALSE        // OX
+  SHORT_ANSWER      // 단답형
+  FILL_IN_BLANK     // 빈칸 채우기
+  MATCHING          // 연결하기
+  ORDERING          // 순서 배열
+  DRAG_DROP         // 드래그앤드롭
+  IMAGE_CHOICE      // 이미지 선택
+}
+
+enum BloomLevel {
+  REMEMBER      // 기억
+  UNDERSTAND    // 이해
+  APPLY         // 적용
+  ANALYZE       // 분석
+  EVALUATE      // 평가
+  CREATE        // 창조
+}
+
+// ==================== 퀴즈셋 ====================
+
+model QuizSet {
+  id            String    @id @default(cuid())
+  creatorId     String
+  subjectId     String?
+  title         String
+  description   String?
+  thumbnailUrl  String?
+  gradeGroup    String?   // 대상 학년군
+  isPublic      Boolean   @default(false)
+  isAIGenerated Boolean   @default(false)
+  playCount     Int       @default(0)
+  likeCount     Int       @default(0)
+  tags          String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  creator      User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  subject      Subject?          @relation(fields: [subjectId], references: [id])
+  questions    QuizSetQuestion[]
+  gameSessions GameSession[]
+
+  @@index([creatorId])
+  @@index([isPublic])
+  @@index([subjectId])
+}
+
+model QuizSetQuestion {
+  id         String   @id @default(cuid())
+  quizSetId  String
+  questionId String
+  order      Int
+  createdAt  DateTime @default(now())
+
+  quizSet  QuizSet  @relation(fields: [quizSetId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([quizSetId, questionId])
+  @@index([quizSetId])
+}
+
+// ==================== 게임 세션 ====================
+
+model GameSession {
+  id           String     @id @default(cuid())
+  hostId       String
+  classroomId  String?
+  quizSetId    String?
+  gameType     GameType
+  gameMode     GameMode   @default(CLASSIC)
+  roomCode     String     @unique
+  status       GameStatus @default(WAITING)
+  settings     Json       // 게임 설정
+  maxPlayers   Int        @default(50)
+  currentRound Int        @default(0)
+  totalRounds  Int?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  host      User         @relation("GameHost", fields: [hostId], references: [id])
+  classroom Classroom?   @relation(fields: [classroomId], references: [id])
+  quizSet   QuizSet?     @relation(fields: [quizSetId], references: [id])
+  players   GamePlayer[]
+  results   GameResult[]
+
+  @@index([roomCode])
+  @@index([status])
+  @@index([hostId])
+}
+
+enum GameType {
+  QUIZ_BATTLE          // 실시간 퀴즈 배틀
+  SPEED_RACE           // 스피드 레이스
+  SURVIVAL             // 서바이벌
+  TEAM_BATTLE          // 팀 대항전
+  TOWER_DEFENSE        // 타워 디펜스
+  MEMORY_MATCH         // 기억력 게임
+  WORD_HUNT            // 단어 찾기
+  BINGO                // 빙고
+  ESCAPE_ROOM          // 방탈출
+  PUZZLE_QUEST         // 퍼즐 퀘스트
+  MATH_RUNNER          // 수학 러너
+  WORD_CHAIN           // 끝말잇기
+  JEOPARDY             // 제퍼디
+  WHEEL_FORTUNE        // 행운의 바퀴
+  FLASH_CARDS          // 플래시 카드
+  MATCHING_PAIRS       // 짝 맞추기
+  FILL_THE_BLANKS      // 빈칸 채우기
+  TIME_ATTACK          // 타임 어택
+}
+
+enum GameMode {
+  CLASSIC
+  TIMED
+  SUDDEN_DEATH
+  TEAM_VS_TEAM
+  COOPERATIVE
+  PRACTICE
+}
+
+enum GameStatus {
+  WAITING
+  COUNTDOWN
+  IN_PROGRESS
+  PAUSED
+  SHOWING_RESULTS
+  FINISHED
+}
+
+model GamePlayer {
+  id            String   @id @default(cuid())
+  gameSessionId String
+  userId        String?
+  nickname      String
+  avatarUrl     String?
+  score         Int      @default(0)
+  streak        Int      @default(0)
+  maxStreak     Int      @default(0)
+  correctCount  Int      @default(0)
+  wrongCount    Int      @default(0)
+  coins         Int      @default(0)
+  powerUps      Json?
+  teamId        String?
+  rank          Int?
+  isHost        Boolean  @default(false)
+  isConnected   Boolean  @default(true)
+  isEliminated  Boolean  @default(false)
+  joinedAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  gameSession GameSession  @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id])
+  answers     GameAnswer[]
+
+  @@unique([gameSessionId, nickname])
+  @@index([gameSessionId])
+  @@index([userId])
+}
+
+model GameAnswer {
+  id           String   @id @default(cuid())
+  gamePlayerId String
+  questionId   String
+  answer       String
+  isCorrect    Boolean
+  responseTime Int      // 밀리초
+  pointsEarned Int      @default(0)
+  bonusPoints  Int      @default(0)
+  round        Int
+  createdAt    DateTime @default(now())
+
+  player   GamePlayer @relation(fields: [gamePlayerId], references: [id], onDelete: Cascade)
+  question Question   @relation(fields: [questionId], references: [id])
+
+  @@unique([gamePlayerId, questionId, round])
+  @@index([gamePlayerId])
+}
+
+// ==================== 게임 결과 & 통계 ====================
+
+model GameResult {
+  id              String   @id @default(cuid())
+  gameSessionId   String
+  userId          String?
+  playerName      String
+  finalRank       Int
+  totalScore      Int
+  correctCount    Int
+  incorrectCount  Int
+  avgResponseTime Int      // 평균 응답 시간 (밀리초)
+  maxStreak       Int      @default(0)
+  pointsEarned    Int      @default(0)
+  expEarned       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  gameSession GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id])
+
+  @@index([gameSessionId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ==================== 업적 시스템 ====================
+
+model Achievement {
+  id          String              @id @default(cuid())
+  code        String              @unique
+  name        String
+  description String
+  iconUrl     String?
+  category    AchievementCategory
+  requirement Json                // 달성 조건
+  reward      Json?               // 보상 내용
+  points      Int                 @default(0)
+  rarity      Rarity              @default(COMMON)
+  createdAt   DateTime            @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+enum AchievementCategory {
+  LEARNING       // 학습 관련
+  SOCIAL         // 소셜
+  STREAK         // 연속 기록
+  COLLECTION     // 수집
+  MASTERY        // 마스터
+  SPECIAL        // 특별
+  GAME           // 게임 모드별
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+model UserAchievement {
+  id            String    @id @default(cuid())
+  userId        String
+  achievementId String
+  progress      Int       @default(0)
+  isCompleted   Boolean   @default(false)
+  unlockedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+// ==================== 랭킹 시스템 ====================
+
+model WeeklyRanking {
+  id          String   @id @default(cuid())
+  userId      String
+  weekStart   DateTime
+  weekEnd     DateTime
+  points      Int      @default(0)
+  gamesPlayed Int      @default(0)
+  rank        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+  @@index([weekStart, points])
+}
+
+// ==================== 레벨 시스템 설정 ====================
+
+model LevelConfig {
+  id              String @id @default(cuid())
+  level           Int    @unique
+  requiredExp     Int
+  title           String
+  iconUrl         String?
+  bonusMultiplier Float  @default(1.0)
+}
+
+// ==================== AI 문제 생성 로그 ====================
+
+model AIGenerationLog {
+  id                    String   @id @default(cuid())
+  userId                String
+  achievementStandardId String?
+  prompt                String   @db.Text
+  response              String   @db.Text
+  questionsGenerated    Int
+  model                 String   // gemini-pro, gemini-1.5-pro 등
+  tokenUsage            Int?
+  success               Boolean
+  errorMessage          String?
+  createdAt             DateTime @default(now())
+
+  @@index([userId])
+  @@index([achievementStandardId])
+  @@index([createdAt])
+}
