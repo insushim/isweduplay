@@ -174,21 +174,21 @@ export default function ReportsPage() {
           <div className="space-y-6">
             {/* Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-none">
-                <div className="text-3xl font-bold text-white">{reportData.overview.totalStudents}</div>
-                <div className="text-sm text-white/70">참여 학생</div>
+              <Card className="p-4 bg-gradient-to-br from-blue-600 to-cyan-600 border-none shadow-lg">
+                <div className="text-3xl font-bold text-white drop-shadow-md">{reportData.overview.totalStudents}</div>
+                <div className="text-sm text-white/90 font-medium">참여 학생</div>
               </Card>
-              <Card className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-none">
-                <div className="text-3xl font-bold text-white">{reportData.overview.totalGames}</div>
-                <div className="text-sm text-white/70">총 게임 수</div>
+              <Card className="p-4 bg-gradient-to-br from-purple-600 to-pink-600 border-none shadow-lg">
+                <div className="text-3xl font-bold text-white drop-shadow-md">{reportData.overview.totalGames}</div>
+                <div className="text-sm text-white/90 font-medium">총 게임 수</div>
               </Card>
-              <Card className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-none">
-                <div className="text-3xl font-bold text-white">{reportData.overview.avgScore.toLocaleString()}</div>
-                <div className="text-sm text-white/70">평균 점수</div>
+              <Card className="p-4 bg-gradient-to-br from-green-600 to-emerald-600 border-none shadow-lg">
+                <div className="text-3xl font-bold text-white drop-shadow-md">{reportData.overview.avgScore.toLocaleString()}</div>
+                <div className="text-sm text-white/90 font-medium">평균 점수</div>
               </Card>
-              <Card className="p-4 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border-none">
-                <div className="text-3xl font-bold text-white">{reportData.overview.avgAccuracy}%</div>
-                <div className="text-sm text-white/70">평균 정답률</div>
+              <Card className="p-4 bg-gradient-to-br from-yellow-500 to-amber-500 border-none shadow-lg">
+                <div className="text-3xl font-bold text-white drop-shadow-md">{reportData.overview.avgAccuracy}%</div>
+                <div className="text-sm text-white/90 font-medium">평균 정답률</div>
               </Card>
             </div>
 

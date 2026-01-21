@@ -1,0 +1,25 @@
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+
+export async function GET() {
+  try {
+    const subjects = await prisma.subject.findMany({
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        color: true,
+        schoolLevel: true,
+      },
+      orderBy: [
+        { schoolLevel: 'asc' },
+        { name: 'asc' },
+      ],
+    })
+
+    return NextResponse.json({ subjects })
+  } catch (error) {
+    console.error('Subjects GET error:', error)
+    return NextResponse.json({ subjects: [] })
+  }
+}

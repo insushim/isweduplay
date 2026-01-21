@@ -20,6 +20,7 @@ const navItems = [
 const teacherNavItems = [
   { href: '/classroom', label: '학급 관리', icon: '🏫' },
   { href: '/quiz/manage', label: '퀴즈 관리', icon: '📝' },
+  { href: '/quiz/shared', label: '퀴즈 공유마당', icon: '🌐' },
   { href: '/reports', label: '리포트', icon: '📈' },
 ]
 
