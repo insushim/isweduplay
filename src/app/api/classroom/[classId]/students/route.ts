@@ -3,10 +3,6 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
-// 간단한 비밀번호 생성 (4자리 숫자)
-function generateSimplePassword(): string {
-  return Math.floor(1000 + Math.random() * 9000).toString()
-}
 
 // 학생 아이디 생성 (학급코드 + 번호)
 function generateStudentLoginId(classCode: string, studentNumber: number): string {
@@ -121,7 +117,7 @@ export async function POST(
       const studentNumber = existingCount + i + 1
       const studentName = students[i].name || `학생${studentNumber}`
       const loginId = generateStudentLoginId(classroom.inviteCode, studentNumber)
-      const password = generateSimplePassword()
+      const password = loginId // 초기 비밀번호는 아이디와 동일
       const hashedPassword = await bcrypt.hash(password, 10)
 
       // 이메일 형식으로 저장 (로그인용)

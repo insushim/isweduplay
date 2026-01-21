@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface UserSettings {
   displayName: string
@@ -56,6 +57,15 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // 비밀번호 변경 상태
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
     fetchSettings()
@@ -120,6 +130,51 @@ export default function SettingsPage() {
       ...prev,
       preferences: { ...prev.preferences, [key]: value },
     }))
+  }
+
+  const handlePasswordChange = async () => {
+    setPasswordMessage(null)
+
+    if (!passwordData.currentPassword || !passwordData.newPassword) {
+      setPasswordMessage({ type: 'error', text: '현재 비밀번호와 새 비밀번호를 입력해주세요.' })
+      return
+    }
+
+    if (passwordData.newPassword.length < 4) {
+      setPasswordMessage({ type: 'error', text: '새 비밀번호는 최소 4자 이상이어야 합니다.' })
+      return
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordMessage({ type: 'error', text: '새 비밀번호가 일치하지 않습니다.' })
+      return
+    }
+
+    setChangingPassword(true)
+
+    try {
+      const response = await fetch('/api/user/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setPasswordMessage({ type: 'success', text: '비밀번호가 변경되었습니다.' })
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      } else {
+        setPasswordMessage({ type: 'error', text: data.error || '비밀번호 변경에 실패했습니다.' })
+      }
+    } catch {
+      setPasswordMessage({ type: 'error', text: '비밀번호 변경 중 오류가 발생했습니다.' })
+    } finally {
+      setChangingPassword(false)
+    }
   }
 
   const Toggle = ({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) => (
@@ -193,6 +248,60 @@ export default function SettingsPage() {
               />
               <p className="text-sm text-white/50 mt-1">이메일은 변경할 수 없습니다</p>
             </div>
+          </div>
+        </Card>
+
+        {/* Password Change Section */}
+        <Card className="p-6 mb-6 bg-white/10 backdrop-blur border-white/20">
+          <h2 className="text-xl font-semibold text-white mb-4">비밀번호 변경</h2>
+          <p className="text-white/60 text-sm mb-4">
+            보안을 위해 비밀번호를 주기적으로 변경하세요. (최소 4자 이상)
+          </p>
+
+          {passwordMessage && (
+            <div className={`mb-4 p-3 rounded-lg ${passwordMessage.type === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-white/80 mb-2">현재 비밀번호</label>
+              <Input
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="bg-white/10 border-white/20 text-white"
+                placeholder="현재 비밀번호 입력"
+              />
+            </div>
+            <div>
+              <label className="block text-white/80 mb-2">새 비밀번호</label>
+              <Input
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="bg-white/10 border-white/20 text-white"
+                placeholder="새 비밀번호 입력 (4자 이상)"
+              />
+            </div>
+            <div>
+              <label className="block text-white/80 mb-2">새 비밀번호 확인</label>
+              <Input
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="bg-white/10 border-white/20 text-white"
+                placeholder="새 비밀번호 다시 입력"
+              />
+            </div>
+            <Button
+              onClick={handlePasswordChange}
+              disabled={changingPassword}
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-medium"
+            >
+              {changingPassword ? '변경 중...' : '비밀번호 변경'}
+            </Button>
           </div>
         </Card>
 
