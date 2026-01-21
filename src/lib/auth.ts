@@ -103,20 +103,27 @@ export const authConfig: NextAuthConfig = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: '이메일', type: 'email' },
+        email: { label: '아이디 또는 이메일', type: 'text' },
         password: { label: '비밀번호', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('이메일과 비밀번호를 입력해주세요.')
+          throw new Error('아이디와 비밀번호를 입력해주세요.')
+        }
+
+        let loginId = credentials.email as string
+
+        // 학생 아이디 형식 (이메일이 아닌 경우) → 이메일로 변환
+        if (!loginId.includes('@')) {
+          loginId = `${loginId.toLowerCase()}@student.eduplay.local`
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: loginId },
         })
 
         if (!user || !user.password) {
-          throw new Error('등록되지 않은 이메일입니다.')
+          throw new Error('등록되지 않은 아이디입니다.')
         }
 
         const isPasswordValid = await bcrypt.compare(

@@ -113,14 +113,17 @@ export default function LoginPage() {
             <form onSubmit={handleCredentialsLogin} className="space-y-4">
               <div className="space-y-2">
                 <Input
-                  type="email"
-                  placeholder="이메일"
+                  type="text"
+                  placeholder="아이디 또는 이메일"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-yellow-400"
                   required
                 />
+                <p className="text-xs text-gray-400">
+                  학생은 선생님이 알려준 아이디를 입력하세요
+                </p>
               </div>
               <div className="space-y-2">
                 <Input
