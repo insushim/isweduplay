@@ -24,7 +24,7 @@ const safetySettings = [
 ]
 
 // 모델 인스턴스 생성
-export function getGeminiModel(modelName: string = 'gemini-1.5-flash') {
+export function getGeminiModel(modelName: string = 'gemini-2.0-flash') {
   return genAI.getGenerativeModel({
     model: modelName,
     safetySettings,
@@ -38,7 +38,7 @@ export function getGeminiModel(modelName: string = 'gemini-1.5-flash') {
 }
 
 // JSON 응답을 위한 모델
-export function getGeminiModelForJSON(modelName: string = 'gemini-1.5-flash') {
+export function getGeminiModelForJSON(modelName: string = 'gemini-2.0-flash') {
   return genAI.getGenerativeModel({
     model: modelName,
     safetySettings,
