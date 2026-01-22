@@ -178,7 +178,9 @@ model ContentElement {
   code             String   @unique  // 예: KOR-01-01
   name             String
   description      String?  @db.Text
-  gradeGroup       String   // 예: "1-2", "3-4", "5-6" (학년군)
+  gradeGroup       String   // 예: "1-2", "3-4", "5-6" (학년군) - 레거시 호환
+  grade            Int      @default(1) // 개별 학년: 1, 2, 3, 4, 5, 6
+  semester         Int      @default(1) // 학기: 1 또는 2
   order            Int
   createdAt        DateTime @default(now())
 
@@ -187,6 +189,7 @@ model ContentElement {
 
   @@index([curriculumAreaId])
   @@index([gradeGroup])
+  @@index([grade, semester])
 }
 
 // 성취기준 (2022 개정 교육과정 핵심)
@@ -195,7 +198,9 @@ model AchievementStandard {
   curriculumAreaId String
   contentElementId String?
   code             String   @unique  // 예: [2국01-01], [4수01-02]
-  gradeGroup       String   // 학년군: "1-2", "3-4", "5-6", "중1", "중2", "중3"
+  gradeGroup       String   // 학년군: "1-2", "3-4", "5-6", "중1", "중2", "중3" (레거시 호환)
+  grade            Int      @default(1) // 개별 학년: 1, 2, 3, 4, 5, 6
+  semester         Int      @default(1) // 학기: 1 또는 2
   description      String   @db.Text // 성취기준 내용
   explanation      String?  @db.Text // 성취기준 해설
   keyCompetencies  String[] // 핵심 역량
@@ -211,6 +216,7 @@ model AchievementStandard {
 
   @@index([curriculumAreaId])
   @@index([gradeGroup])
+  @@index([grade, semester])
   @@index([code])
 }
 

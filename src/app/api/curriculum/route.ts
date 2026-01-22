@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const subjectId = searchParams.get('subjectId')
     const gradeGroup = searchParams.get('gradeGroup')
+    const grade = searchParams.get('grade')
+    const semester = searchParams.get('semester')
 
     // 성취기준 조회
     const achievementStandards = await prisma.achievementStandard.findMany({
@@ -16,12 +18,18 @@ export async function GET(request: NextRequest) {
           },
         }),
         ...(gradeGroup && { gradeGroup }),
+        ...(grade && { grade: parseInt(grade, 10) }),
+        ...(semester && { semester: parseInt(semester, 10) }),
       },
       select: {
         id: true,
         code: true,
         gradeGroup: true,
+        grade: true,
+        semester: true,
         description: true,
+        explanation: true,
+        keyCompetencies: true,
         curriculumArea: {
           select: {
             id: true,
@@ -37,7 +45,8 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [
-        { gradeGroup: 'asc' },
+        { grade: 'asc' },
+        { semester: 'asc' },
         { code: 'asc' },
       ],
     })

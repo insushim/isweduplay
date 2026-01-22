@@ -52,6 +52,10 @@ export default function ClassroomPage() {
   const [creatingStudents, setCreatingStudents] = useState(false)
   const [createdStudents, setCreatedStudents] = useState<CreatedStudent[]>([])
 
+  // 학급 삭제 상태
+  const [showDeleteClassModal, setShowDeleteClassModal] = useState(false)
+  const [deletingClass, setDeletingClass] = useState(false)
+
   useEffect(() => {
     fetchClassrooms()
   }, [])
@@ -110,9 +114,37 @@ export default function ClassroomPage() {
         setSelectedClass(data.classroom)
         setShowCreateClassModal(false)
         setNewClassName('')
+      } else if (data.error) {
+        alert(data.error)
       }
     } catch (error) {
       console.error('Failed to create classroom:', error)
+    }
+  }
+
+  const handleDeleteClass = async () => {
+    if (!selectedClass) return
+    setDeletingClass(true)
+
+    try {
+      const response = await fetch(`/api/classroom?classId=${selectedClass.id}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setClassrooms(classrooms.filter(c => c.id !== selectedClass.id))
+        setSelectedClass(null)
+        setStudents([])
+        setShowDeleteClassModal(false)
+      } else {
+        alert(data.error || '학급 삭제에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Failed to delete classroom:', error)
+      alert('학급 삭제 중 오류가 발생했습니다.')
+    } finally {
+      setDeletingClass(false)
     }
   }
 
@@ -207,10 +239,20 @@ export default function ClassroomPage() {
           <div>
             <h1 className="text-3xl font-bold text-white">학급 관리</h1>
             <p className="text-white/70">학급을 만들고 학생들을 관리하세요</p>
+            {classrooms.length > 0 && (
+              <p className="text-yellow-400 text-sm mt-1">
+                * 선생님당 1개의 학급만 운영할 수 있습니다
+              </p>
+            )}
           </div>
           <Button
-            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+            className={`${
+              classrooms.length > 0
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+            }`}
             onClick={() => setShowCreateClassModal(true)}
+            disabled={classrooms.length > 0}
           >
             + 학급 만들기
           </Button>
@@ -225,7 +267,8 @@ export default function ClassroomPage() {
           <Card className="p-12 bg-white/10 backdrop-blur border-white/20 text-center">
             <div className="text-6xl mb-4">🏫</div>
             <h2 className="text-xl font-semibold text-white mb-2">아직 학급이 없습니다</h2>
-            <p className="text-white/70 mb-6">학급을 만들어 학생들을 추가하세요</p>
+            <p className="text-white/70 mb-2">학급을 만들어 학생들을 추가하세요</p>
+            <p className="text-yellow-400/80 text-sm mb-6">* 선생님당 1개의 학급만 운영할 수 있습니다</p>
             <Button
               className="bg-gradient-to-r from-indigo-500 to-purple-500"
               onClick={() => setShowCreateClassModal(true)}
@@ -264,11 +307,20 @@ export default function ClassroomPage() {
                       <h2 className="text-2xl font-bold text-white">{selectedClass.name}</h2>
                       <p className="text-white/70">{selectedClass.grade}학년</p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-white/70">학급 코드</div>
-                      <div className="text-2xl font-mono font-bold text-yellow-400">
-                        {selectedClass.code}
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-sm text-white/70">학급 코드</div>
+                        <div className="text-2xl font-mono font-bold text-yellow-400">
+                          {selectedClass.code}
+                        </div>
                       </div>
+                      <Button
+                        variant="outline"
+                        className="border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300"
+                        onClick={() => setShowDeleteClassModal(true)}
+                      >
+                        🗑️ 학급 삭제
+                      </Button>
                     </div>
                   </div>
 
@@ -537,6 +589,55 @@ export default function ClassroomPage() {
               >
                 확인
               </Button>
+            </Card>
+          </div>
+        )}
+
+        {/* Delete Classroom Modal */}
+        {showDeleteClassModal && selectedClass && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="w-full max-w-md p-6 bg-gradient-to-br from-red-900 to-rose-900 border-red-500/30">
+              <div className="text-center mb-6">
+                <div className="text-5xl mb-4">⚠️</div>
+                <h2 className="text-xl font-bold text-white mb-2">학급을 삭제하시겠습니까?</h2>
+                <p className="text-white/70 text-sm">
+                  <span className="font-bold text-yellow-400">{selectedClass.name}</span>을(를) 삭제합니다.
+                </p>
+              </div>
+
+              <div className="bg-black/30 rounded-lg p-4 mb-6">
+                <div className="text-red-300 font-semibold mb-2">⚠️ 경고: 되돌릴 수 없습니다!</div>
+                <ul className="text-white/80 text-sm space-y-1">
+                  <li>• 학급에 등록된 모든 학생 계정이 삭제됩니다</li>
+                  <li>• 학생들의 학습 기록이 모두 삭제됩니다</li>
+                  <li>• 삭제 후 새로운 학급을 만들 수 있습니다</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-white/20 text-white hover:bg-white/10"
+                  onClick={() => setShowDeleteClassModal(false)}
+                  disabled={deletingClass}
+                >
+                  취소
+                </Button>
+                <Button
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  onClick={handleDeleteClass}
+                  disabled={deletingClass}
+                >
+                  {deletingClass ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      삭제 중...
+                    </>
+                  ) : (
+                    '삭제하기'
+                  )}
+                </Button>
+              </div>
             </Card>
           </div>
         )}

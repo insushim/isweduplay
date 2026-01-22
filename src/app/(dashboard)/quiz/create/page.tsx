@@ -17,7 +17,11 @@ interface AchievementStandard {
   id: string
   code: string
   gradeGroup: string
+  grade: number
+  semester: number
   description: string
+  explanation?: string
+  keyCompetencies: string[]
   curriculumArea: {
     id: string
     name: string
@@ -29,13 +33,18 @@ interface AchievementStandard {
   }
 }
 
-const GRADE_GROUPS = [
-  { value: '1-2', label: '1-2학년' },
-  { value: '3-4', label: '3-4학년' },
-  { value: '5-6', label: '5-6학년' },
-  { value: '중1', label: '중학교 1학년' },
-  { value: '중2', label: '중학교 2학년' },
-  { value: '중3', label: '중학교 3학년' },
+const ELEMENTARY_GRADES = [
+  { value: 1, label: '1학년' },
+  { value: 2, label: '2학년' },
+  { value: 3, label: '3학년' },
+  { value: 4, label: '4학년' },
+  { value: 5, label: '5학년' },
+  { value: 6, label: '6학년' },
+]
+
+const SEMESTERS = [
+  { value: 1, label: '1학기' },
+  { value: 2, label: '2학기' },
 ]
 
 const DIFFICULTY_OPTIONS = [
@@ -57,10 +66,11 @@ export default function QuizCreatePage() {
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
 
-  // Step 1: 과목/학년 선택
+  // Step 1: 과목/학년/학기 선택
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [selectedSubject, setSelectedSubject] = useState<string>('')
-  const [selectedGradeGroup, setSelectedGradeGroup] = useState<string>('')
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null)
+  const [selectedSemester, setSelectedSemester] = useState<number | null>(null)
 
   // Step 2: 성취기준 선택 또는 자유 주제
   const [mode, setMode] = useState<'curriculum' | 'free'>('curriculum')
@@ -82,10 +92,10 @@ export default function QuizCreatePage() {
   }, [])
 
   useEffect(() => {
-    if (selectedSubject && selectedGradeGroup) {
+    if (selectedSubject && selectedGrade && selectedSemester) {
       fetchAchievementStandards()
     }
-  }, [selectedSubject, selectedGradeGroup])
+  }, [selectedSubject, selectedGrade, selectedSemester])
 
   const fetchSubjects = async () => {
     try {
@@ -102,7 +112,12 @@ export default function QuizCreatePage() {
   const fetchAchievementStandards = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/curriculum?subjectId=${selectedSubject}&gradeGroup=${selectedGradeGroup}`)
+      const params = new URLSearchParams()
+      params.set('subjectId', selectedSubject)
+      if (selectedGrade) params.set('grade', selectedGrade.toString())
+      if (selectedSemester) params.set('semester', selectedSemester.toString())
+
+      const response = await fetch(`/api/curriculum?${params.toString()}`)
       const data = await response.json()
       if (data.achievementStandards) {
         setAchievementStandards(data.achievementStandards)
@@ -141,7 +156,8 @@ export default function QuizCreatePage() {
         body.achievementStandardId = selectedStandard
       } else if (mode === 'free' && freeTopic) {
         body.topic = freeTopic
-        body.gradeGroup = selectedGradeGroup
+        body.grade = selectedGrade
+        body.semester = selectedSemester
         const subject = subjects.find(s => s.id === selectedSubject)
         if (subject) {
           body.subject = subject.name
@@ -206,10 +222,10 @@ export default function QuizCreatePage() {
           ))}
         </div>
 
-        {/* Step 1: 과목/학년 선택 */}
+        {/* Step 1: 과목/학년/학기 선택 */}
         {step === 1 && (
           <Card className="p-6 bg-white/10 backdrop-blur border-white/20">
-            <h2 className="text-xl font-semibold text-white mb-6">1단계: 과목과 학년 선택</h2>
+            <h2 className="text-xl font-semibold text-white mb-6">1단계: 과목, 학년, 학기 선택</h2>
 
             <div className="mb-6">
               <label className="block text-white/90 font-medium mb-3">과목 선택</label>
@@ -234,14 +250,14 @@ export default function QuizCreatePage() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-white/90 font-medium mb-3">학년군 선택</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {GRADE_GROUPS.map((grade) => (
+              <label className="block text-white/90 font-medium mb-3">학년 선택</label>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {ELEMENTARY_GRADES.map((grade) => (
                   <button
                     key={grade.value}
-                    onClick={() => setSelectedGradeGroup(grade.value)}
+                    onClick={() => setSelectedGrade(grade.value)}
                     className={`p-4 rounded-xl transition-all ${
-                      selectedGradeGroup === grade.value
+                      selectedGrade === grade.value
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white ring-2 ring-white'
                         : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
@@ -252,10 +268,29 @@ export default function QuizCreatePage() {
               </div>
             </div>
 
+            <div className="mb-6">
+              <label className="block text-white/90 font-medium mb-3">학기 선택</label>
+              <div className="grid grid-cols-2 gap-3">
+                {SEMESTERS.map((semester) => (
+                  <button
+                    key={semester.value}
+                    onClick={() => setSelectedSemester(semester.value)}
+                    className={`p-4 rounded-xl transition-all ${
+                      selectedSemester === semester.value
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white ring-2 ring-white'
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                  >
+                    {semester.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="flex justify-end">
               <Button
                 onClick={() => setStep(2)}
-                disabled={!selectedSubject || !selectedGradeGroup}
+                disabled={!selectedSubject || !selectedGrade || !selectedSemester}
                 className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50"
               >
                 다음 단계 →
@@ -329,7 +364,7 @@ export default function QuizCreatePage() {
                           <div className="flex-1">
                             <div className="font-medium">{standard.description}</div>
                             <div className="text-sm opacity-70 mt-1">
-                              {standard.curriculumArea.name} | {standard.gradeGroup}학년군
+                              {standard.curriculumArea.name} | {standard.grade}학년 {standard.semester}학기
                             </div>
                           </div>
                         </div>
@@ -453,7 +488,7 @@ export default function QuizCreatePage() {
               <h3 className="font-medium text-white mb-2">퀴즈 요약</h3>
               <div className="text-white/70 text-sm space-y-1">
                 <p>• 과목: {selectedSubjectData?.name}</p>
-                <p>• 학년군: {selectedGradeGroup}</p>
+                <p>• 학년: {selectedGrade}학년 {selectedSemester}학기</p>
                 <p>• 주제: {mode === 'curriculum' ? selectedStandardData?.description?.slice(0, 50) : freeTopic}</p>
                 <p>• 난이도: {DIFFICULTY_OPTIONS.find(d => d.value === difficulty)?.label}</p>
                 <p>• 문제 수: {questionCount}개</p>
@@ -525,6 +560,10 @@ export default function QuizCreatePage() {
                   setSelectedStandard('')
                   setFreeTopic('')
                   setQuizTitle('')
+                  setSelectedSubject('')
+                  setSelectedGrade(null)
+                  setSelectedSemester(null)
+                  setAchievementStandards([])
                 }}
                 variant="outline"
                 className="flex-1 border-white/20 text-white hover:bg-white/10"
