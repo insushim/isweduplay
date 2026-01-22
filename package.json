@@ -2,6 +2,9 @@
   "name": "eduplay-korea",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "dev:socket": "tsx watch server/index.ts",

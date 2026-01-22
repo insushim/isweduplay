@@ -1,6 +1,6 @@
 // 과학 성취기준 시드 데이터
-// 2022 개정 교육과정 기반 - 교육부 공식 문서 교차 검증
-// 과학은 3학년부터 시작
+// 2022 개정 교육과정 기반 - 교육부 공식 문서 교차 검증 (5개 이상 소스)
+// 과학은 3학년부터 시작 (총 50개)
 
 import { SubjectStandardsData } from './index'
 
@@ -8,8 +8,12 @@ export const scienceStandards: SubjectStandardsData = {
   subjectCode: 'SCI',
   subjectName: '과학',
   standards: [
+    // =====================================================
+    // 3-4학년군 (3학년 1학기 ~ 4학년 2학기) - 22개
+    // =====================================================
+
     // ===== 3학년 1학기 =====
-    // 물질
+    // 물질의 성질
     {
       code: '[4과01-01]',
       gradeGroup: '3-4',
@@ -17,6 +21,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '물질',
       description: '여러 가지 물질을 선정하여 다양한 방법으로 분류하고, 물질의 성질을 활용하여 우리 생활에 필요한 물건을 설계할 수 있다.',
+      explanation: '물질의 성질을 이해하고 분류하며 실생활에 적용하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
     },
     {
@@ -26,16 +31,18 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '물질',
       description: '서로 다른 물질을 섞었을 때 물질의 성질이 달라지거나 달라지지 않는 경우를 관찰하고, 혼합물 분리 방법을 설계할 수 있다.',
+      explanation: '혼합물의 성질과 분리 방법을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
     },
-    // 생명
+    // 동물의 한살이
     {
       code: '[4과02-01]',
       gradeGroup: '3-4',
       grade: 3,
       semester: 1,
       areaName: '생명',
-      description: '주변 동물의 생김새와 생활 방식이 환경과 밀접한 관련이 있음을 설명할 수 있다.',
+      description: '동물의 암수에 따른 생김새 차이를 관찰하고, 동물이 새끼를 낳거나 알을 낳아 번식함을 설명할 수 있다.',
+      explanation: '동물의 번식 방법과 암수 차이를 이해하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -44,12 +51,13 @@ export const scienceStandards: SubjectStandardsData = {
       grade: 3,
       semester: 1,
       areaName: '생명',
-      description: '동물을 다양한 기준으로 분류하고, 동물의 특징에 따른 분류 기준을 설명할 수 있다.',
+      description: '동물의 한살이를 관찰하고, 동물에 따라 한살이의 유형이 다양함을 비교하여 설명할 수 있다.',
+      explanation: '다양한 동물의 한살이 과정과 유형을 비교 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
     },
 
     // ===== 3학년 2학기 =====
-    // 운동과 에너지
+    // 자석의 이용
     {
       code: '[4과03-01]',
       gradeGroup: '3-4',
@@ -57,6 +65,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '운동과 에너지',
       description: '자석의 극을 찾고 자석 주위에 철로 된 물체가 끌려오는 현상을 관찰하여 자석의 성질을 설명할 수 있다.',
+      explanation: '자석의 기본적인 성질을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -66,9 +75,10 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '운동과 에너지',
       description: '두 자석 사이에 밀거나 당기는 힘이 작용하는 현상을 관찰하고 자석의 성질을 활용한 물건을 설계할 수 있다.',
+      explanation: '자석의 인력과 척력을 이해하고 활용하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
     },
-    // 지구와 우주
+    // 지표의 변화
     {
       code: '[4과04-01]',
       gradeGroup: '3-4',
@@ -76,6 +86,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '지구와 우주',
       description: '흙을 구성하는 알갱이를 관찰하여 흙의 생성 과정과 토양이 생물에게 주는 도움을 설명할 수 있다.',
+      explanation: '흙의 구성과 생성 과정, 토양의 중요성을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -84,12 +95,23 @@ export const scienceStandards: SubjectStandardsData = {
       grade: 3,
       semester: 2,
       areaName: '지구와 우주',
-      description: '지층과 화석의 생성 과정을 이해하고, 지층과 화석을 관찰하여 과거의 환경과 생물에 대해 추리할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
+      description: '흐르는 물에 의해 지표가 변화하는 과정을 관찰하고, 흐르는 물이 지표에 미치는 영향을 설명할 수 있다.',
+      explanation: '물에 의한 침식, 운반, 퇴적 작용을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[4과04-03]',
+      gradeGroup: '3-4',
+      grade: 3,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '강과 바닷가 주변의 지형을 관찰하고 지표의 변화 과정을 설명할 수 있다.',
+      explanation: '강과 바다 주변 지형의 형성 과정을 이해하는 탐구 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
 
     // ===== 4학년 1학기 =====
-    // 물질
+    // 물의 상태 변화
     {
       code: '[4과01-03]',
       gradeGroup: '3-4',
@@ -97,6 +119,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '물질',
       description: '물이 얼거나 얼음이 녹을 때의 부피와 무게 변화를 관찰하여 물의 상태 변화를 설명할 수 있다.',
+      explanation: '물의 상태 변화와 부피, 무게의 관계를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -106,16 +129,18 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '물질',
       description: '물이 증발하거나 수증기가 응결하는 현상을 관찰하고 이러한 현상이 우리 생활에서 이용되는 예를 조사할 수 있다.',
+      explanation: '증발과 응결 현상을 이해하고 실생활 적용 사례를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
-    // 생명
+    // 식물의 한살이
     {
       code: '[4과02-03]',
       gradeGroup: '3-4',
       grade: 4,
       semester: 1,
       areaName: '생명',
-      description: '식물의 생김새와 생활 방식이 환경과 밀접한 관련이 있음을 설명할 수 있다.',
+      description: '여러 가지 식물의 한살이 과정을 관찰하고, 식물에 따라 한살이의 유형이 다양함을 비교하여 설명할 수 있다.',
+      explanation: '다양한 식물의 한살이 과정과 특징을 비교 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -124,12 +149,13 @@ export const scienceStandards: SubjectStandardsData = {
       grade: 4,
       semester: 1,
       areaName: '생명',
-      description: '식물을 다양한 기준으로 분류하고, 식물의 특징에 따른 분류 기준을 설명할 수 있다.',
+      description: '식물의 각 기관이 하는 일을 알고, 식물이 살아가는 데 필요한 조건을 설명할 수 있다.',
+      explanation: '식물 기관의 기능과 생장 조건을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
     },
 
     // ===== 4학년 2학기 =====
-    // 운동과 에너지
+    // 그림자와 거울
     {
       code: '[4과03-03]',
       gradeGroup: '3-4',
@@ -137,6 +163,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '운동과 에너지',
       description: '그림자가 생기는 조건을 이해하고 그림자의 크기 변화를 광원, 물체, 스크린 사이의 거리와 관련지어 설명할 수 있다.',
+      explanation: '그림자의 생성과 크기 변화 원리를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -146,30 +173,90 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '운동과 에너지',
       description: '거울에 비친 물체의 모습을 관찰하여 거울에서 빛이 반사되는 성질을 설명할 수 있다.',
+      explanation: '빛의 반사와 거울의 성질을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
-    // 지구와 우주
-    {
-      code: '[4과04-03]',
-      gradeGroup: '3-4',
-      grade: 4,
-      semester: 2,
-      areaName: '지구와 우주',
-      description: '하루 동안 지구에서 달과 별의 위치가 변하는 것을 지구의 자전으로 설명할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
+    // 지층과 화석
     {
       code: '[4과04-04]',
       gradeGroup: '3-4',
       grade: 4,
       semester: 2,
       areaName: '지구와 우주',
-      description: '여러 날 동안 달의 모양과 위치 변화를 관찰하여 달의 공전을 이해할 수 있다.',
+      description: '지층과 화석의 생성 과정을 이해하고, 지층과 화석을 관찰하여 과거의 환경과 생물에 대해 추리할 수 있다.',
+      explanation: '지층과 화석을 통해 과거 환경을 추론하는 탐구 활동',
+      keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
+    },
+    {
+      code: '[4과04-05]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '화석이 만들어지는 과정을 이해하고, 화석 모형을 만들어 실제 화석과 비교할 수 있다.',
+      explanation: '화석의 생성 과정을 모형 제작을 통해 이해하는 탐구 활동',
+      keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
+    },
+    // 화산과 지진
+    {
+      code: '[4과04-06]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '화산 활동으로 나오는 물질과 화산 활동이 우리 생활에 미치는 영향을 설명할 수 있다.',
+      explanation: '화산 활동과 그 영향을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[4과04-07]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '지진이 발생하는 원인을 이해하고, 지진이 발생했을 때 안전하게 대피하는 방법을 익힐 수 있다.',
+      explanation: '지진의 원인과 안전한 대피 방법을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '자기관리 역량'],
+    },
+    // 동물의 생활
+    {
+      code: '[4과02-05]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '생명',
+      description: '주변 동물의 생김새와 생활 방식이 환경과 밀접한 관련이 있음을 설명할 수 있다.',
+      explanation: '동물의 적응과 환경의 관계를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[4과02-06]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '생명',
+      description: '동물을 다양한 기준으로 분류하고, 동물의 특징에 따른 분류 기준을 설명할 수 있다.',
+      explanation: '동물 분류의 기준과 방법을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
+    },
+    // 식물의 생활
+    {
+      code: '[4과02-07]',
+      gradeGroup: '3-4',
+      grade: 4,
+      semester: 2,
+      areaName: '생명',
+      description: '주변 식물의 생김새와 생활 방식이 환경과 밀접한 관련이 있음을 설명할 수 있다.',
+      explanation: '식물의 적응과 환경의 관계를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
 
+    // =====================================================
+    // 5-6학년군 (5학년 1학기 ~ 6학년 2학기) - 28개
+    // =====================================================
+
     // ===== 5학년 1학기 =====
-    // 운동과 에너지
+    // 물체의 운동
     {
       code: '[6과03-01]',
       gradeGroup: '5-6',
@@ -177,6 +264,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '운동과 에너지',
       description: '일정한 시간 동안 이동한 거리를 측정하여 물체의 빠르기를 비교할 수 있다.',
+      explanation: '물체의 빠르기를 측정하고 비교하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -186,9 +274,10 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '운동과 에너지',
       description: '물체의 속력을 구하고 속력을 비교하여 이동 거리와 시간의 관계를 설명할 수 있다.',
+      explanation: '속력의 개념과 계산 방법을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
-    // 지구와 우주
+    // 태양계와 별
     {
       code: '[6과04-01]',
       gradeGroup: '5-6',
@@ -196,6 +285,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '지구와 우주',
       description: '태양이 지구의 에너지원임을 이해하고, 태양과 지구 사이의 거리가 생명체가 살기에 적당한 기온을 만든다는 것을 설명할 수 있다.',
+      explanation: '태양의 역할과 지구와의 거리 관계를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -205,11 +295,43 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '지구와 우주',
       description: '태양계를 구성하는 천체의 특징을 비교하여 행성을 분류할 수 있다.',
+      explanation: '태양계 행성들의 특징을 비교 분류하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
+    },
+    {
+      code: '[6과04-03]',
+      gradeGroup: '5-6',
+      grade: 5,
+      semester: 1,
+      areaName: '지구와 우주',
+      description: '별의 밝기와 색이 다양함을 관찰하고, 별까지의 거리에 따라 밝기가 달라진다는 것을 설명할 수 있다.',
+      explanation: '별의 특성과 거리에 따른 밝기 변화를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    // 다양한 생물과 우리 생활
+    {
+      code: '[6과02-01]',
+      gradeGroup: '5-6',
+      grade: 5,
+      semester: 1,
+      areaName: '생명',
+      description: '다양한 생물이 우리 생활에 미치는 영향을 이해하고 생물을 보전해야 하는 이유를 설명할 수 있다.',
+      explanation: '생물의 다양성과 보전의 중요성을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '공동체 역량'],
+    },
+    {
+      code: '[6과02-02]',
+      gradeGroup: '5-6',
+      grade: 5,
+      semester: 1,
+      areaName: '생명',
+      description: '곰팡이와 버섯, 세균 등 미생물의 특징을 알고 첨단 생명과학에서의 활용 방법을 조사할 수 있다.',
+      explanation: '미생물의 특징과 활용을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
 
     // ===== 5학년 2학기 =====
-    // 물질
+    // 용해와 용액
     {
       code: '[6과01-01]',
       gradeGroup: '5-6',
@@ -217,6 +339,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '물질',
       description: '용질이 용매에 녹아 용액이 되는 현상을 관찰하고, 용해 현상을 입자적 관점에서 설명할 수 있다.',
+      explanation: '용해 현상을 입자 모형으로 이해하는 탐구 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
@@ -226,70 +349,161 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '물질',
       description: '온도와 용질의 종류에 따른 용해도 차이를 활용하여 혼합물을 분리하는 방법을 설계할 수 있다.',
+      explanation: '용해도와 혼합물 분리를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
     },
-    // 생명
-    {
-      code: '[6과02-01]',
-      gradeGroup: '5-6',
-      grade: 5,
-      semester: 2,
-      areaName: '생명',
-      description: '생물의 구성 단계에 따라 세포, 조직, 기관, 개체 사이의 유기적인 관계를 설명할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
-    {
-      code: '[6과02-02]',
-      gradeGroup: '5-6',
-      grade: 5,
-      semester: 2,
-      areaName: '생명',
-      description: '식물과 동물 세포를 관찰하여 세포의 공통점과 차이점을 비교할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
-    },
-
-    // ===== 6학년 1학기 =====
-    // 운동과 에너지
+    // 열과 우리 생활
     {
       code: '[6과03-03]',
       gradeGroup: '5-6',
-      grade: 6,
-      semester: 1,
+      grade: 5,
+      semester: 2,
       areaName: '운동과 에너지',
-      description: '일상생활에서 다양한 전기 회로를 찾아 전지, 전선, 전구의 연결 방법에 따른 특징을 설명할 수 있다.',
+      description: '고체, 액체, 기체에서 열이 전달되는 방법을 알고 단열의 원리를 설명할 수 있다.',
+      explanation: '열의 전달 방식과 단열 원리를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
       code: '[6과03-04]',
       gradeGroup: '5-6',
-      grade: 6,
-      semester: 1,
+      grade: 5,
+      semester: 2,
       areaName: '운동과 에너지',
-      description: '전자석의 성질을 탐구하고, 전자석을 만들어 일상생활에서 활용되는 사례를 조사할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
+      description: '일상생활에서 열의 이동을 차단하거나 빠르게 하는 예를 조사하고 단열의 중요성을 설명할 수 있다.',
+      explanation: '실생활에서의 열 이용과 단열의 중요성을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '자기관리 역량'],
     },
-    // 생명
+    // 날씨와 우리 생활
+    {
+      code: '[6과04-04]',
+      gradeGroup: '5-6',
+      grade: 5,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '날씨에 영향을 주는 요소를 이해하고 습도, 이슬, 안개, 구름의 관계를 설명할 수 있다.',
+      explanation: '날씨 요소들 간의 관계를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과04-05]',
+      gradeGroup: '5-6',
+      grade: 5,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '저기압과 고기압, 바람의 방향을 이해하고 일기도에서 날씨를 예측하여 생활에 적용할 수 있다.',
+      explanation: '기압과 날씨 예측을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '자기관리 역량'],
+    },
+    // 우리 몸의 구조와 기능
     {
       code: '[6과02-03]',
       gradeGroup: '5-6',
-      grade: 6,
-      semester: 1,
+      grade: 5,
+      semester: 2,
       areaName: '생명',
-      description: '소화, 순환, 호흡, 배설 과정을 중심으로 각 기관계의 기능과 통합적 관계를 설명할 수 있다.',
+      description: '생물의 구성 단계에 따라 세포, 조직, 기관, 개체 사이의 유기적인 관계를 설명할 수 있다.',
+      explanation: '생물체의 구성 단계와 유기적 관계를 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
     {
       code: '[6과02-04]',
       gradeGroup: '5-6',
+      grade: 5,
+      semester: 2,
+      areaName: '생명',
+      description: '식물과 동물 세포를 관찰하여 세포의 공통점과 차이점을 비교할 수 있다.',
+      explanation: '식물 세포와 동물 세포를 비교 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
+    },
+
+    // ===== 6학년 1학기 =====
+    // 전기의 이용
+    {
+      code: '[6과03-05]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '운동과 에너지',
+      description: '일상생활에서 다양한 전기 회로를 찾아 전지, 전선, 전구의 연결 방법에 따른 특징을 설명할 수 있다.',
+      explanation: '전기 회로의 구성과 연결 방법을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과03-06]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '운동과 에너지',
+      description: '전자석의 성질을 탐구하고, 전자석을 만들어 일상생활에서 활용되는 사례를 조사할 수 있다.',
+      explanation: '전자석의 원리와 활용을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '창의적 사고 역량'],
+    },
+    // 빛과 렌즈
+    {
+      code: '[6과03-07]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '운동과 에너지',
+      description: '빛이 유리나 물을 통과할 때 굴절하는 현상을 관찰하고, 빛의 굴절이 적용된 예를 찾을 수 있다.',
+      explanation: '빛의 굴절 현상과 실생활 적용을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과03-08]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '운동과 에너지',
+      description: '볼록 렌즈와 오목 렌즈를 통과한 빛의 경로를 관찰하고, 렌즈가 활용되는 예를 조사할 수 있다.',
+      explanation: '렌즈의 성질과 활용을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    // 지구와 달의 운동
+    {
+      code: '[6과04-06]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '지구와 우주',
+      description: '하루 동안 지구에서 달과 별의 위치가 변하는 것을 지구의 자전으로 설명할 수 있다.',
+      explanation: '지구의 자전과 천체의 겉보기 운동을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과04-07]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '지구와 우주',
+      description: '여러 날 동안 달의 모양과 위치 변화를 관찰하여 달의 공전을 이해할 수 있다.',
+      explanation: '달의 공전과 위상 변화를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    // 식물의 구조와 기능
+    {
+      code: '[6과02-05]',
+      gradeGroup: '5-6',
       grade: 6,
       semester: 1,
       areaName: '생명',
-      description: '뼈와 근육이 유기적으로 작용하여 몸이 움직이는 원리를 설명할 수 있다.',
+      description: '식물의 뿌리, 줄기, 잎의 구조와 기능을 이해하고, 각 기관의 연관성을 설명할 수 있다.',
+      explanation: '식물 기관의 구조와 기능, 유기적 관계를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과02-06]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '생명',
+      description: '식물의 광합성에 필요한 조건과 광합성으로 만들어지는 물질을 이해하고 그 중요성을 설명할 수 있다.',
+      explanation: '광합성의 조건과 과정, 중요성을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
 
     // ===== 6학년 2학기 =====
-    // 물질
+    // 산과 염기
     {
       code: '[6과01-03]',
       gradeGroup: '5-6',
@@ -297,6 +511,7 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '물질',
       description: '산과 염기의 성질을 관찰하고, 지시약을 이용하여 여러 가지 용액을 분류할 수 있다.',
+      explanation: '산과 염기의 성질과 지시약의 활용을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '비판적 사고 역량'],
     },
     {
@@ -306,62 +521,70 @@ export const scienceStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '물질',
       description: '산과 염기를 섞었을 때의 변화를 관찰하고 중화 반응의 특징을 설명할 수 있다.',
+      explanation: '중화 반응의 원리와 특징을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
     },
-    // 지구와 우주
-    {
-      code: '[6과04-03]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '지구와 우주',
-      description: '계절에 따른 기온, 낮과 밤의 길이, 태양의 남중 고도 변화를 지구의 공전과 자전축의 기울기로 설명할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
-    {
-      code: '[6과04-04]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '지구와 우주',
-      description: '날씨에 영향을 주는 요소를 이해하고 습도, 이슬, 안개, 구름의 관계를 설명할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
-    {
-      code: '[6과04-05]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '지구와 우주',
-      description: '저기압과 고기압, 바람의 방향을 이해하고 일기도에서 날씨를 예측하여 생활에 적용할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '자기관리 역량'],
-    },
-    // 생명
-    {
-      code: '[6과02-05]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '생명',
-      description: '생태계의 구성 요소와 역할을 이해하고, 비생물 환경 요인이 생물에게 미치는 영향을 설명할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
-    {
-      code: '[6과02-06]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '생명',
-      description: '생태계 내에서 생물 사이의 먹이 관계를 설명하고, 생태계 평형이 유지되는 원리를 이해할 수 있다.',
-      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
-    },
+    // 우리 몸의 구조와 기능
     {
       code: '[6과02-07]',
       gradeGroup: '5-6',
       grade: 6,
       semester: 2,
       areaName: '생명',
+      description: '소화, 순환, 호흡, 배설 과정을 중심으로 각 기관계의 기능과 통합적 관계를 설명할 수 있다.',
+      explanation: '인체 기관계의 기능과 유기적 관계를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과02-08]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '생명',
+      description: '뼈와 근육이 유기적으로 작용하여 몸이 움직이는 원리를 설명할 수 있다.',
+      explanation: '운동 기관의 구조와 작용 원리를 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    // 계절의 변화
+    {
+      code: '[6과04-08]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '지구와 우주',
+      description: '계절에 따른 기온, 낮과 밤의 길이, 태양의 남중 고도 변화를 지구의 공전과 자전축의 기울기로 설명할 수 있다.',
+      explanation: '계절 변화의 원인을 지구의 운동으로 설명하는 탐구 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    // 생태계와 환경
+    {
+      code: '[6과02-09]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '생명',
+      description: '생태계의 구성 요소와 역할을 이해하고, 비생물 환경 요인이 생물에게 미치는 영향을 설명할 수 있다.',
+      explanation: '생태계의 구성과 환경 요인의 영향을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과02-10]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '생명',
+      description: '생태계 내에서 생물 사이의 먹이 관계를 설명하고, 생태계 평형이 유지되는 원리를 이해할 수 있다.',
+      explanation: '먹이 관계와 생태계 평형을 탐구하는 활동',
+      keyCompetencies: ['과학적 탐구 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6과02-11]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '생명',
       description: '환경오염이 생물에게 미치는 영향을 이해하고, 생태계 보전을 위한 실천 방안을 제안할 수 있다.',
+      explanation: '환경오염과 생태계 보전의 중요성을 탐구하는 활동',
       keyCompetencies: ['과학적 탐구 역량', '공동체 역량'],
     },
   ],

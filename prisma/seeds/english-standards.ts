@@ -1,6 +1,7 @@
 // 영어 성취기준 시드 데이터
 // 2022 개정 교육과정 기반 - 교육부 공식 문서 교차 검증
 // 영어는 3학년부터 시작
+// 총 54개 성취기준 (3-4학년군 24개, 5-6학년군 30개)
 
 import { SubjectStandardsData } from './index'
 
@@ -17,6 +18,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '알파벳 대소문자를 듣고 식별할 수 있다.',
+      explanation: '알파벳 26개 대소문자의 명칭을 듣고 구별하는 능력을 기른다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     {
@@ -26,6 +28,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '영어의 강세, 리듬, 억양을 듣고 따라 말할 수 있다.',
+      explanation: '영어의 운율적 특성을 이해하고 자연스러운 발음을 익힌다.',
       keyCompetencies: ['영어 의사소통 역량'],
     },
     {
@@ -35,6 +38,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '간단한 인사말이나 일상생활 표현을 듣고 이해할 수 있다.',
+      explanation: '기본적인 인사와 일상 표현을 듣고 상황에 맞게 반응한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     // 말하기
@@ -45,6 +49,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '알파벳 대소문자를 바르게 발음할 수 있다.',
+      explanation: '알파벳 26개 대소문자의 명칭을 정확하게 발음한다.',
       keyCompetencies: ['영어 의사소통 역량'],
     },
     {
@@ -54,6 +59,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '간단한 인사말을 주고받을 수 있다.',
+      explanation: '만남과 헤어짐의 기본 인사를 상황에 맞게 사용한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     {
@@ -63,6 +69,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '자신의 이름을 소개할 수 있다.',
+      explanation: '자기소개의 기본인 이름 말하기를 영어로 표현한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     // 읽기
@@ -73,6 +80,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '읽기',
       description: '알파벳 대소문자를 식별하여 읽을 수 있다.',
+      explanation: '알파벳 26개 대소문자를 눈으로 보고 정확하게 읽는다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -83,6 +91,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '쓰기',
       description: '알파벳 대소문자를 바르게 쓸 수 있다.',
+      explanation: '알파벳 대소문자의 올바른 형태와 순서를 익혀 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
 
@@ -95,6 +104,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '쉽고 간단한 낱말이나 어구를 듣고 이해할 수 있다.',
+      explanation: '기본 어휘와 간단한 어구를 듣고 의미를 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -104,6 +114,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '그림, 사진, 동작에 관한 간단한 표현을 듣고 이해할 수 있다.',
+      explanation: '시각 자료와 연결하여 간단한 영어 표현을 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
     },
     // 말하기
@@ -114,6 +125,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '쉽고 간단한 낱말이나 어구를 따라 말할 수 있다.',
+      explanation: '기본 어휘와 어구를 듣고 정확하게 따라 말한다.',
       keyCompetencies: ['영어 의사소통 역량'],
     },
     {
@@ -123,6 +135,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '그림, 사진, 동작에 관해 한두 문장으로 말할 수 있다.',
+      explanation: '시각 자료를 보고 간단한 문장으로 표현한다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
     },
     // 읽기
@@ -133,6 +146,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '읽기',
       description: '소리와 철자의 관계를 이해하고 낱말을 읽을 수 있다.',
+      explanation: '파닉스의 기초를 이해하고 낱말 읽기에 적용한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -143,6 +157,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '쓰기',
       description: '구두로 익힌 낱말을 따라 쓸 수 있다.',
+      explanation: '말로 배운 낱말을 보고 따라 쓰는 연습을 한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
 
@@ -155,6 +170,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '주변 사물과 사람에 관한 쉽고 간단한 문장을 듣고 이해할 수 있다.',
+      explanation: '일상에서 접하는 사물과 사람에 대한 기본 표현을 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -164,6 +180,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '일상생활에 관한 쉽고 간단한 말이나 대화를 듣고 이해할 수 있다.',
+      explanation: '일상적인 상황에서의 대화를 듣고 내용을 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     // 말하기
@@ -174,6 +191,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '주변 사물과 사람에 관해 한두 문장으로 말할 수 있다.',
+      explanation: '주변 환경과 사람에 대해 간단히 설명한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -183,6 +201,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '일상생활에 관해 간단한 표현으로 묻고 답할 수 있다.',
+      explanation: '일상적인 주제에 대해 질문하고 대답하는 대화를 한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     // 읽기
@@ -193,6 +212,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '읽기',
       description: '쉽고 간단한 낱말이나 어구를 읽고 의미를 이해할 수 있다.',
+      explanation: '기본 어휘를 읽고 뜻을 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -203,6 +223,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '쓰기',
       description: '쉽고 간단한 낱말이나 어구를 쓸 수 있다.',
+      explanation: '기본 어휘와 어구를 올바르게 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
 
@@ -215,6 +236,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '간단한 지시나 설명을 듣고 이해할 수 있다.',
+      explanation: '교실이나 일상에서의 지시문과 설명을 이해하고 따른다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     // 말하기
@@ -225,6 +247,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '간단한 노래, 챈트, 놀이 활동에 참여할 수 있다.',
+      explanation: '영어 노래와 챈트를 따라 부르며 즐겁게 학습한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량', '심미적 감성 역량'],
     },
     // 읽기
@@ -235,6 +258,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '읽기',
       description: '쉽고 간단한 문장을 읽고 의미를 이해할 수 있다.',
+      explanation: '기본 문장 구조를 이해하고 의미를 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -245,6 +269,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '쓰기',
       description: '실물, 그림, 사진을 보고 쉽고 간단한 낱말이나 어구를 쓸 수 있다.',
+      explanation: '시각 자료를 보고 관련 어휘를 쓰는 연습을 한다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
     },
 
@@ -257,6 +282,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '일상생활 관련 주제에 관한 간단한 말이나 대화를 듣고 세부 정보를 파악할 수 있다.',
+      explanation: '대화에서 구체적인 정보(시간, 장소, 인물 등)를 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -266,6 +292,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '일상생활 관련 주제에 관한 간단한 말이나 대화를 듣고 주제 및 요지를 파악할 수 있다.',
+      explanation: '대화의 핵심 내용과 중심 생각을 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 말하기
@@ -276,6 +303,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '주변의 사람, 사물, 장소에 관해 간단히 묻고 답할 수 있다.',
+      explanation: '주변 환경에 대해 영어로 질문하고 대답하는 대화를 한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     {
@@ -285,6 +313,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '일상생활에 관해 짧고 간단한 표현으로 묻고 답할 수 있다.',
+      explanation: '일상적인 주제로 짧은 대화를 나눈다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     // 읽기
@@ -295,6 +324,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '읽기',
       description: '쉽고 간단한 문장을 소리 내어 유창하게 읽을 수 있다.',
+      explanation: '문장을 자연스러운 속도와 발음으로 소리 내어 읽는다.',
       keyCompetencies: ['영어 의사소통 역량'],
     },
     {
@@ -304,6 +334,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '읽기',
       description: '일상생활에 관한 짧고 쉬운 글을 읽고 세부 정보를 파악할 수 있다.',
+      explanation: '글에서 구체적인 정보를 찾아 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -314,6 +345,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '쓰기',
       description: '구두로 익힌 문장을 쓸 수 있다.',
+      explanation: '말로 배운 문장을 글로 정확하게 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
 
@@ -326,6 +358,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '그림, 도표, 실물 등에 관한 간단한 말이나 대화를 듣고 이해할 수 있다.',
+      explanation: '다양한 시각 자료와 관련된 대화를 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -335,6 +368,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '간단한 말이나 대화를 듣고 일의 순서를 파악할 수 있다.',
+      explanation: '대화에서 일의 진행 순서나 절차를 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 말하기
@@ -345,6 +379,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '그림, 도표, 실물 등에 관해 간단히 묻고 답할 수 있다.',
+      explanation: '시각 자료를 활용하여 질문하고 대답한다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
     },
     {
@@ -354,6 +389,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '지시나 설명하는 말을 할 수 있다.',
+      explanation: '간단한 지시문이나 설명을 영어로 말한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     // 읽기
@@ -364,6 +400,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '읽기',
       description: '일상생활에 관한 짧고 쉬운 글을 읽고 주제 및 요지를 파악할 수 있다.',
+      explanation: '글의 핵심 내용과 중심 생각을 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -374,6 +411,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '쓰기',
       description: '실물, 그림, 도표를 보고 간단한 문장을 쓸 수 있다.',
+      explanation: '시각 자료를 보고 이를 설명하는 문장을 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
     },
 
@@ -386,6 +424,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '간단한 말이나 대화를 듣고 목적을 파악할 수 있다.',
+      explanation: '대화의 목적(요청, 제안, 권유 등)을 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     {
@@ -395,6 +434,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '듣기',
       description: '간단한 말이나 대화를 듣고 화자의 의도나 감정을 파악할 수 있다.',
+      explanation: '말하는 사람의 기분이나 의도를 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
     // 말하기
@@ -405,6 +445,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '자신의 경험이나 계획에 관해 간단히 말할 수 있다.',
+      explanation: '과거 경험과 미래 계획을 영어로 표현한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     {
@@ -414,6 +455,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '말하기',
       description: '자신의 의견이나 감정을 표현할 수 있다.',
+      explanation: '자신의 생각과 느낌을 영어로 말한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     // 읽기
@@ -424,6 +466,17 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '읽기',
       description: '짧고 쉬운 글을 읽고 일의 순서나 전후 관계를 파악할 수 있다.',
+      explanation: '글의 시간적 순서나 논리적 관계를 이해한다.',
+      keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6영03-05]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 1,
+      areaName: '읽기',
+      description: '짧고 쉬운 글을 읽고 목적이나 의도를 파악할 수 있다.',
+      explanation: '글쓴이의 목적이나 의도를 파악한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
     },
     // 쓰기
@@ -434,6 +487,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 1,
       areaName: '쓰기',
       description: '간단한 초대, 감사, 축하 등의 글을 쓸 수 있다.',
+      explanation: '목적에 맞는 간단한 실용문을 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '공동체 역량'],
     },
 
@@ -446,7 +500,18 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '듣기',
       description: '다양한 매체에서 흘러나오는 간단한 말이나 대화를 듣고 이해할 수 있다.',
+      explanation: '영상, 음성 매체의 영어를 이해한다.',
       keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
+    },
+    {
+      code: '[6영01-08]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '듣기',
+      description: '간단한 말이나 대화를 듣고 내용을 추론할 수 있다.',
+      explanation: '직접 언급되지 않은 내용을 문맥에서 추론한다.',
+      keyCompetencies: ['영어 의사소통 역량', '비판적 사고 역량'],
     },
     // 말하기
     {
@@ -456,6 +521,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '간단한 역할 놀이를 할 수 있다.',
+      explanation: '상황극을 통해 영어를 실제로 사용해 본다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량', '공동체 역량'],
     },
     {
@@ -465,18 +531,10 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '말하기',
       description: '일상생활에 관한 주제에 대해 짧게 발표할 수 있다.',
+      explanation: '간단한 주제로 영어 발표를 한다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     // 읽기
-    {
-      code: '[6영03-05]',
-      gradeGroup: '5-6',
-      grade: 6,
-      semester: 2,
-      areaName: '읽기',
-      description: '짧고 쉬운 글을 읽고 목적이나 의도를 파악할 수 있다.',
-      keyCompetencies: ['영어 의사소통 역량', '지식정보처리 역량'],
-    },
     {
       code: '[6영03-06]',
       gradeGroup: '5-6',
@@ -484,6 +542,17 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '읽기',
       description: '일상생활에 관한 짧고 쉬운 글을 읽고 자신의 의견을 말할 수 있다.',
+      explanation: '글을 읽고 자신의 생각을 영어로 표현한다.',
+      keyCompetencies: ['영어 의사소통 역량', '비판적 사고 역량'],
+    },
+    {
+      code: '[6영03-07]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '읽기',
+      description: '짧고 쉬운 글을 읽고 내용을 추론할 수 있다.',
+      explanation: '글에 명시되지 않은 내용을 문맥에서 추론한다.',
       keyCompetencies: ['영어 의사소통 역량', '비판적 사고 역량'],
     },
     // 쓰기
@@ -494,6 +563,7 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '쓰기',
       description: '간단한 자기소개 글을 쓸 수 있다.',
+      explanation: '자신을 소개하는 짧은 글을 쓴다.',
       keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
     {
@@ -503,7 +573,18 @@ export const englishStandards: SubjectStandardsData = {
       semester: 2,
       areaName: '쓰기',
       description: '예시문을 참고하여 간단한 글을 쓸 수 있다.',
+      explanation: '예시를 활용하여 자신만의 글을 작성한다.',
       keyCompetencies: ['영어 의사소통 역량', '창의적 사고 역량'],
+    },
+    {
+      code: '[6영04-06]',
+      gradeGroup: '5-6',
+      grade: 6,
+      semester: 2,
+      areaName: '쓰기',
+      description: '자신의 경험이나 계획에 관해 간단히 쓸 수 있다.',
+      explanation: '과거 경험과 미래 계획을 글로 표현한다.',
+      keyCompetencies: ['영어 의사소통 역량', '자기관리 역량'],
     },
   ],
 }

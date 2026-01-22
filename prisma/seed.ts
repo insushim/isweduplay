@@ -132,40 +132,40 @@ async function createAchievements() {
   await prisma.achievement.createMany({ data: achievements })
 }
 
-// 영역 코드 매핑
+// 영역 코드 매핑 - 과목별로 고유한 영역 코드 사용
 const areaCodeMap: Record<string, Record<string, string>> = {
   KOR: {
-    '듣기·말하기': 'KOR-01',
-    '읽기': 'KOR-02',
-    '쓰기': 'KOR-03',
-    '문법': 'KOR-04',
-    '문학': 'KOR-05',
+    '듣기·말하기': 'KOR-E-01',
+    '읽기': 'KOR-E-02',
+    '쓰기': 'KOR-E-03',
+    '문법': 'KOR-E-04',
+    '문학': 'KOR-E-05',
   },
   MATH: {
-    '수와 연산': 'MATH-01',
-    '도형': 'MATH-02',
-    '측정': 'MATH-03',
-    '규칙성': 'MATH-04',
-    '자료와 가능성': 'MATH-05',
+    '수와 연산': 'MATH-E-01',
+    '도형': 'MATH-E-02',
+    '측정': 'MATH-E-03',
+    '규칙성': 'MATH-E-04',
+    '자료와 가능성': 'MATH-E-05',
   },
   ENG: {
-    '듣기': 'ENG-01',
-    '말하기': 'ENG-02',
-    '읽기': 'ENG-03',
-    '쓰기': 'ENG-04',
+    '듣기': 'ENG-E-01',
+    '말하기': 'ENG-E-02',
+    '읽기': 'ENG-E-03',
+    '쓰기': 'ENG-E-04',
   },
   SOC: {
-    '지리 인식': 'SOC-01',
-    '장소와 지역': 'SOC-02',
-    '경제': 'SOC-03',
-    '정치': 'SOC-04',
-    '역사 일반': 'SOC-05',
+    '지리 인식': 'SOC-E-01',
+    '장소와 지역': 'SOC-E-02',
+    '경제': 'SOC-E-03',
+    '정치': 'SOC-E-04',
+    '역사 일반': 'SOC-E-05',
   },
   SCI: {
-    '물질': 'SCI-01',
-    '생명': 'SCI-02',
-    '운동과 에너지': 'SCI-03',
-    '지구와 우주': 'SCI-04',
+    '물질': 'SCI-E-01',
+    '생명': 'SCI-E-02',
+    '운동과 에너지': 'SCI-E-03',
+    '지구와 우주': 'SCI-E-04',
   },
 }
 
