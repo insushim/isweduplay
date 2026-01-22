@@ -121,7 +121,7 @@ export const mathStandards: SubjectStandardsData = {
       gradeGroup: '1-2',
       grade: 1,
       semester: 2,
-      description: '시계를 보고 시각을 '몇 시', '몇 시 30분'으로 읽을 수 있다.',
+      description: "시계를 보고 시각을 '몇 시', '몇 시 30분'으로 읽을 수 있다.",
       explanation: '시계의 긴 바늘과 짧은 바늘을 이해하고 정각과 30분 단위로 시각을 읽는다.',
       keyCompetencies: ['문제 해결', '의사소통'],
       areaName: '측정'
@@ -187,7 +187,7 @@ export const mathStandards: SubjectStandardsData = {
       gradeGroup: '1-2',
       grade: 2,
       semester: 1,
-      description: '시계를 보고 시각을 '몇 시 몇 분'으로 읽을 수 있다.',
+      description: "시계를 보고 시각을 '몇 시 몇 분'으로 읽을 수 있다.",
       explanation: '5분 단위, 1분 단위로 시각을 읽는다.',
       keyCompetencies: ['문제 해결'],
       areaName: '측정'
