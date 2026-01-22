@@ -232,7 +232,7 @@ export const mathStandards: SubjectStandardsData = {
       gradeGroup: '1-2',
       grade: 2,
       semester: 2,
-      description: '시각과 시간을 구분하고, '몇 시간', '몇 분', '몇 초'의 관계를 이해한다.',
+      description: "시각과 시간을 구분하고, '몇 시간', '몇 분', '몇 초'의 관계를 이해한다.",
       explanation: '1시간=60분, 1분=60초의 관계를 이해한다.',
       keyCompetencies: ['추론', '문제 해결'],
       areaName: '측정'
