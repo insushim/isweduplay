@@ -54,10 +54,14 @@ const DIFFICULTY_OPTIONS = [
 ]
 
 const QUESTION_TYPES = [
-  { value: 'MULTIPLE_CHOICE', label: '4지선다', icon: '📝' },
-  { value: 'TRUE_FALSE', label: 'OX 퀴즈', icon: '⭕' },
-  { value: 'SHORT_ANSWER', label: '단답형', icon: '✍️' },
-  { value: 'FILL_IN_BLANK', label: '빈칸 채우기', icon: '📄' },
+  { value: 'MULTIPLE_CHOICE', label: '4지선다', icon: '🎯', description: '4개 중 정답 고르기' },
+  { value: 'MULTIPLE_ANSWER', label: '다답형', icon: '✅', description: '정답이 여러 개!' },
+  { value: 'TRUE_FALSE', label: 'OX 퀴즈', icon: '⭕', description: '맞으면 O, 틀리면 X' },
+  { value: 'SHORT_ANSWER', label: '단답형', icon: '✏️', description: '답을 직접 입력' },
+  { value: 'FILL_IN_BLANK', label: '빈칸 채우기', icon: '📝', description: '빈칸에 들어갈 말' },
+  { value: 'MATCHING', label: '연결하기', icon: '🔗', description: '짝을 맞춰보세요' },
+  { value: 'ORDERING', label: '순서 배열', icon: '🔢', description: '올바른 순서로 정렬' },
+  { value: 'IMAGE_CHOICE', label: '그림 퀴즈', icon: '🖼️', description: '그림 보고 맞추기' },
 ]
 
 export default function QuizCreatePage() {
@@ -230,7 +234,9 @@ export default function QuizCreatePage() {
             <div className="mb-6">
               <label className="block text-white/90 font-medium mb-3">과목 선택</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {subjects.map((subject) => (
+                {subjects
+                  .filter((subject) => subject.schoolLevel === 'ELEMENTARY')
+                  .map((subject) => (
                   <button
                     key={subject.id}
                     onClick={() => setSelectedSubject(subject.id)}
@@ -241,9 +247,7 @@ export default function QuizCreatePage() {
                     }`}
                   >
                     <div className="text-lg font-medium">{subject.name}</div>
-                    <div className="text-sm opacity-70">
-                      {subject.schoolLevel === 'ELEMENTARY' ? '초등' : subject.schoolLevel === 'MIDDLE' ? '중등' : '고등'}
-                    </div>
+                    <div className="text-sm opacity-70">초등</div>
                   </button>
                 ))}
               </div>
@@ -464,23 +468,29 @@ export default function QuizCreatePage() {
 
             {/* 문제 유형 */}
             <div className="mb-6">
-              <label className="block text-white/90 font-medium mb-3">문제 유형</label>
-              <div className="grid grid-cols-2 gap-3">
+              <label className="block text-white/90 font-medium mb-3">
+                문제 유형 <span className="text-white/60 text-sm">(여러 개 선택 가능)</span>
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {QUESTION_TYPES.map((type) => (
                   <button
                     key={type.value}
                     onClick={() => handleQuestionTypeToggle(type.value)}
-                    className={`p-4 rounded-xl transition-all ${
+                    className={`p-4 rounded-xl transition-all text-center ${
                       questionTypes.includes(type.value)
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white ring-2 ring-white'
-                        : 'bg-white/10 text-white hover:bg-white/20'
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white ring-2 ring-white scale-105'
+                        : 'bg-white/10 text-white hover:bg-white/20 hover:scale-102'
                     }`}
                   >
-                    <span className="text-2xl mr-2">{type.icon}</span>
-                    {type.label}
+                    <div className="text-3xl mb-2">{type.icon}</div>
+                    <div className="font-medium text-sm">{type.label}</div>
+                    <div className="text-xs opacity-70 mt-1">{type.description}</div>
                   </button>
                 ))}
               </div>
+              <p className="text-white/50 text-xs mt-2">
+                💡 여러 유형을 선택하면 다양한 문제가 생성됩니다!
+              </p>
             </div>
 
             {/* 요약 */}

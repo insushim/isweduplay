@@ -26,11 +26,14 @@ const generateQuizSchema = z.object({
     .array(
       z.enum([
         'MULTIPLE_CHOICE',
+        'MULTIPLE_ANSWER',
         'TRUE_FALSE',
         'SHORT_ANSWER',
         'FILL_IN_BLANK',
         'MATCHING',
         'ORDERING',
+        'DRAG_DROP',
+        'IMAGE_CHOICE',
       ])
     )
     .default(['MULTIPLE_CHOICE']),
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Gemini API 호출
-    const model = getGeminiModelForJSON('gemini-1.5-flash')
+    const model = getGeminiModelForJSON('gemini-2.0-flash')
     const result = await model.generateContent(prompt)
     const responseText = result.response.text()
 
@@ -163,7 +166,7 @@ export async function POST(request: NextRequest) {
           prompt,
           response: responseText,
           questionsGenerated: 0,
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.0-flash',
           success: false,
           errorMessage: 'Failed to parse response',
         },
@@ -268,7 +271,7 @@ export async function POST(request: NextRequest) {
         prompt,
         response: responseText,
         questionsGenerated: questions.length,
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
         success: true,
       },
     })
@@ -295,7 +298,7 @@ export async function POST(request: NextRequest) {
         difficulty: validatedData.difficulty,
         questionCount: questions.length,
         generatedAt: new Date().toISOString(),
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash',
       },
     })
   } catch (error) {

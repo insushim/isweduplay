@@ -24,7 +24,7 @@ const safetySettings = [
 ]
 
 // 모델 인스턴스 생성
-export function getGeminiModel(modelName: string = 'gemini-3-flash-preview') {
+export function getGeminiModel(modelName: string = 'gemini-2.0-flash') {
   return genAI.getGenerativeModel({
     model: modelName,
     safetySettings,
@@ -38,7 +38,7 @@ export function getGeminiModel(modelName: string = 'gemini-3-flash-preview') {
 }
 
 // JSON 응답을 위한 모델
-export function getGeminiModelForJSON(modelName: string = 'gemini-3-flash-preview') {
+export function getGeminiModelForJSON(modelName: string = 'gemini-2.0-flash') {
   return genAI.getGenerativeModel({
     model: modelName,
     safetySettings,
@@ -102,6 +102,8 @@ export function buildQuizPrompt(params: QuizGenerationParams): string {
       switch (type) {
         case 'MULTIPLE_CHOICE':
           return '- 객관식(4지선다): 정답 1개, 매력적인 오답 3개'
+        case 'MULTIPLE_ANSWER':
+          return '- 다답형(복수정답): 정답이 2-3개, 총 4-5개 선택지'
         case 'TRUE_FALSE':
           return '- OX 퀴즈: 명확한 참/거짓 진술'
         case 'SHORT_ANSWER':
@@ -109,9 +111,13 @@ export function buildQuizPrompt(params: QuizGenerationParams): string {
         case 'FILL_IN_BLANK':
           return '- 빈칸 채우기: 핵심 개념이 빈칸으로'
         case 'MATCHING':
-          return '- 연결하기: 관련 개념 짝짓기'
+          return '- 연결하기: 4-5쌍의 관련 개념 짝짓기 (왼쪽-오른쪽 매칭)'
         case 'ORDERING':
-          return '- 순서 배열: 논리적/시간적 순서'
+          return '- 순서 배열: 4-5개 항목을 논리적/시간적 순서로 배열'
+        case 'DRAG_DROP':
+          return '- 드래그앤드롭: 카테고리에 항목 분류하기'
+        case 'IMAGE_CHOICE':
+          return '- 그림 퀴즈: 이미지/그림 설명 기반 문제'
         default:
           return ''
       }
@@ -192,8 +198,54 @@ ${includeHints ? '7. 문제 해결에 도움이 되는 힌트 포함' : ''}
   ]
 }
 
-※ OX 퀴즈: options는 ["O", "X"], answer는 "O" 또는 "X"
-※ 단답형: options는 빈 배열 []
+═══════════════════════════════════════════
+📝 문제 유형별 형식 안내
+═══════════════════════════════════════════
+※ MULTIPLE_CHOICE (4지선다)
+   - options: ["선택지1", "선택지2", "선택지3", "선택지4"]
+   - answer: "정답 선택지 텍스트"
+
+※ MULTIPLE_ANSWER (다답형)
+   - options: ["선택지1", "선택지2", "선택지3", "선택지4", "선택지5"]
+   - answer: "정답1, 정답2" (쉼표로 구분된 복수 정답)
+
+※ TRUE_FALSE (OX 퀴즈)
+   - options: ["O", "X"]
+   - answer: "O" 또는 "X"
+
+※ SHORT_ANSWER (단답형)
+   - options: []
+   - answer: "정답 텍스트"
+
+※ FILL_IN_BLANK (빈칸 채우기)
+   - content: "다음 문장의 빈칸을 채우세요: 우리나라의 수도는 ___이다."
+   - options: []
+   - answer: "서울"
+
+※ MATCHING (연결하기)
+   - content: "왼쪽 항목과 오른쪽 항목을 알맞게 연결하세요."
+   - options: ["봄-새싹", "여름-수영", "가을-단풍", "겨울-눈"] (쌍으로 표시)
+   - answer: "봄-새싹, 여름-수영, 가을-단풍, 겨울-눈" (정답 매칭)
+   - matchingPairs: {"왼쪽": ["봄", "여름", "가을", "겨울"], "오른쪽": ["새싹", "수영", "단풍", "눈"]}
+
+※ ORDERING (순서 배열)
+   - content: "다음을 올바른 순서로 배열하세요."
+   - options: ["두 번째", "네 번째", "첫 번째", "세 번째"] (섞인 순서)
+   - answer: "첫 번째, 두 번째, 세 번째, 네 번째" (정답 순서)
+   - correctOrder: ["첫 번째", "두 번째", "세 번째", "네 번째"]
+
+※ DRAG_DROP (드래그앤드롭)
+   - content: "다음 동물들을 알맞은 분류에 넣으세요."
+   - options: ["사자", "독수리", "상어", "개구리"] (분류할 항목들)
+   - answer: "포유류: 사자, 조류: 독수리, 어류: 상어, 양서류: 개구리"
+   - categories: ["포유류", "조류", "어류", "양서류"]
+
+※ IMAGE_CHOICE (그림 퀴즈)
+   - content: "[그림: 삼각형 모양] 위 도형의 이름은 무엇인가요?"
+   - imageDescription: "정삼각형 도형이 그려져 있다"
+   - options: ["삼각형", "사각형", "원", "오각형"]
+   - answer: "삼각형"
+
 ※ bloomLevel: REMEMBER, UNDERSTAND, APPLY, ANALYZE, EVALUATE, CREATE 중 선택`
 }
 
