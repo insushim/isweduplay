@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Gemini API 호출
-    const model = getGeminiModelForJSON('gemini-2.0-flash')
+    const model = getGeminiModelForJSON('gemini-3-pro-preview')
     const result = await model.generateContent(prompt)
     const responseText = result.response.text()
 
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
           prompt,
           response: responseText,
           questionsGenerated: 0,
-          model: 'gemini-2.0-flash',
+          model: 'gemini-3-pro-preview',
           success: false,
           errorMessage: 'Failed to parse response',
         },
@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
         prompt,
         response: responseText,
         questionsGenerated: questions.length,
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3-pro-preview',
         success: true,
       },
     })
@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
         difficulty: validatedData.difficulty,
         questionCount: questions.length,
         generatedAt: new Date().toISOString(),
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3-pro-preview',
       },
     })
   } catch (error) {
