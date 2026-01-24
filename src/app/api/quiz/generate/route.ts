@@ -335,6 +335,80 @@ function buildFreeTopicPrompt(data: {
     hard: '어려움',
   }[data.difficulty]
 
+  // 문제 유형별 예시 생성
+  const typeExamples = data.questionTypes.map(type => {
+    switch (type) {
+      case 'MULTIPLE_CHOICE':
+        return `{
+      "type": "MULTIPLE_CHOICE",
+      "content": "문제 내용?",
+      "options": ["선택지1", "선택지2", "선택지3", "선택지4"],
+      "answer": "정답 텍스트 (options 중 하나와 정확히 일치)",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 3,
+      "timeLimit": 30
+    }`
+      case 'TRUE_FALSE':
+        return `{
+      "type": "TRUE_FALSE",
+      "content": "참/거짓 판단 문장",
+      "options": ["O", "X"],
+      "answer": "O 또는 X",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 2,
+      "timeLimit": 20
+    }`
+      case 'SHORT_ANSWER':
+        return `{
+      "type": "SHORT_ANSWER",
+      "content": "단답형 문제?",
+      "options": [],
+      "answer": "정답 단어나 짧은 문장",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 3,
+      "timeLimit": 45
+    }`
+      case 'FILL_IN_BLANK':
+        return `{
+      "type": "FILL_IN_BLANK",
+      "content": "문장에서 ___는 빈칸을 의미합니다. ___에 들어갈 말은?",
+      "options": [],
+      "answer": "빈칸 정답 (여러 개면 쉼표로 구분)",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 3,
+      "timeLimit": 40
+    }`
+      case 'ORDERING':
+        return `{
+      "type": "ORDERING",
+      "content": "다음을 올바른 순서로 나열하세요",
+      "options": ["순서1", "순서2", "순서3", "순서4"],
+      "answer": "순서1 → 순서2 → 순서3 → 순서4",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 4,
+      "timeLimit": 60
+    }`
+      case 'MATCHING':
+        return `{
+      "type": "MATCHING",
+      "content": "왼쪽과 오른쪽을 알맞게 연결하세요",
+      "options": ["왼쪽1", "오른쪽1", "왼쪽2", "오른쪽2", "왼쪽3", "오른쪽3"],
+      "answer": "왼쪽1=오른쪽1, 왼쪽2=오른쪽2, 왼쪽3=오른쪽3",
+      "answerExplanation": "정답 해설",
+      "hint": "힌트",
+      "difficulty": 4,
+      "timeLimit": 60
+    }`
+      default:
+        return ''
+    }
+  }).filter(Boolean).join(',\n    ')
+
   return `당신은 대한민국 교육 전문가입니다.
 다음 주제에 맞는 교육용 문제를 생성해주세요.
 
@@ -354,36 +428,33 @@ ${data.gradeGroup ? `대상: ${data.gradeGroup} 학년` : ''}
 ${data.bloomLevels?.length ? `인지 수준: ${data.bloomLevels.join(', ')}` : ''}
 
 ═══════════════════════════════════════════
+📋 문제 유형별 형식
+═══════════════════════════════════════════
+- MULTIPLE_CHOICE: 4지선다 객관식, options에 4개 선택지, answer는 options 중 하나
+- TRUE_FALSE: OX 퀴즈, options는 ["O", "X"], answer는 "O" 또는 "X"
+- SHORT_ANSWER: 단답형, options는 빈 배열 [], answer는 짧은 텍스트
+- FILL_IN_BLANK: 빈칸 채우기, content에 ___로 빈칸 표시, answer는 빈칸 정답
+- ORDERING: 순서 맞추기, options에 섞인 항목들, answer는 "1 → 2 → 3" 형식
+- MATCHING: 짝 맞추기, options는 [왼1, 오1, 왼2, 오2...] 교대로, answer는 "왼1=오1, 왼2=오2" 형식
+
+═══════════════════════════════════════════
 📋 요구사항
 ═══════════════════════════════════════════
 1. 교육적으로 가치 있는 문제
 2. 명확하고 이해하기 쉬운 문장
 3. 적절한 난이도 배분
-${data.includeExplanations ? '4. 상세한 정답 해설 포함' : ''}
-${data.includeHints ? '5. 힌트 포함' : ''}
+4. 요청된 문제 유형들을 골고루 사용
+${data.includeExplanations ? '5. 상세한 정답 해설 포함' : ''}
+${data.includeHints ? '6. 힌트 포함' : ''}
 
 ═══════════════════════════════════════════
 📤 출력 형식 (JSON)
 ═══════════════════════════════════════════
 {
   "questions": [
-    {
-      "type": "MULTIPLE_CHOICE",
-      "bloomLevel": "UNDERSTAND",
-      "content": "문제 내용",
-      "options": ["선택지1", "선택지2", "선택지3", "선택지4"],
-      "answer": "정답 텍스트",
-      "answerExplanation": "정답 해설",
-      "wrongAnswerExplanations": {
-        "선택지1": "오답인 이유",
-        "선택지2": "오답인 이유"
-      },
-      "hint": "힌트",
-      "difficulty": 1-5,
-      "points": 100,
-      "keywords": ["관련 키워드"],
-      "timeLimit": 30
-    }
+    ${typeExamples}
   ]
-}`
+}
+
+위 예시 형식을 참고하여 ${data.questionCount}개의 문제를 생성하세요.`
 }
