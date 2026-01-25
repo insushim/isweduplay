@@ -10,6 +10,15 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import type { GameStatus, Question, GamePlayer, LeaderboardEntry } from '@/types/game'
 
+// 게임별 전용 컴포넌트 import
+import dynamic from 'next/dynamic'
+
+const EscapeRoomGame = dynamic(() => import('@/components/games/EscapeRoomGame'), { ssr: false })
+const MemoryMatchGame = dynamic(() => import('@/components/games/MemoryMatchGame'), { ssr: false })
+const BingoGame = dynamic(() => import('@/components/games/BingoGame'), { ssr: false })
+const WordHuntGame = dynamic(() => import('@/components/games/WordHuntGame'), { ssr: false })
+const SurvivalGame = dynamic(() => import('@/components/games/SurvivalGame'), { ssr: false })
+
 // 럭키 스핀 이벤트 타입
 interface LuckyEvent {
   id: string
@@ -1663,6 +1672,68 @@ export default function GamePlayPage() {
     )
   }
 
+  // 전용 게임 컴포넌트 사용하는 게임 유형들
+  const specializedGameTypes = ['ESCAPE_ROOM', 'MEMORY_MATCH', 'BINGO', 'WORD_HUNT', 'SURVIVAL']
+
+  // 전용 게임 완료 핸들러
+  const handleSpecializedGameComplete = useCallback((finalScore: number, finalCorrectCount: number) => {
+    setScore(finalScore)
+    setCorrectCount(finalCorrectCount)
+    setStatus('FINISHED')
+  }, [])
+
+  // 전용 게임 컴포넌트 렌더링
+  const renderSpecializedGame = () => {
+    if (!gameData?.questions?.length) return null
+
+    const timeLimit = gameData?.settings?.timeLimit || 30
+
+    switch (gameData?.gameType) {
+      case 'ESCAPE_ROOM':
+        return (
+          <EscapeRoomGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'MEMORY_MATCH':
+        return (
+          <MemoryMatchGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'BINGO':
+        return (
+          <BingoGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'WORD_HUNT':
+        return (
+          <WordHuntGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'SURVIVAL':
+        return (
+          <SurvivalGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      default:
+        return null
+    }
+  }
+
   // Render based on game status
   switch (status) {
     case 'WAITING':
@@ -1679,6 +1750,12 @@ export default function GamePlayPage() {
       return <CountdownScreen seconds={countdownSeconds} />
 
     case 'IN_PROGRESS':
+      // 전용 게임 컴포넌트 사용
+      if (specializedGameTypes.includes(gameData?.gameType || '')) {
+        return renderSpecializedGame()
+      }
+
+      // 기본 퀴즈 형식
       return currentQuestion ? (
         <>
           {/* 럭키 스핀 모달 */}
