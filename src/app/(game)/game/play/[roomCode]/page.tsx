@@ -18,6 +18,18 @@ const MemoryMatchGame = dynamic(() => import('@/components/games/MemoryMatchGame
 const BingoGame = dynamic(() => import('@/components/games/BingoGame'), { ssr: false })
 const WordHuntGame = dynamic(() => import('@/components/games/WordHuntGame'), { ssr: false })
 const SurvivalGame = dynamic(() => import('@/components/games/SurvivalGame'), { ssr: false })
+const SpeedRaceGame = dynamic(() => import('@/components/games/SpeedRaceGame'), { ssr: false })
+const TowerDefenseGame = dynamic(() => import('@/components/games/TowerDefenseGame'), { ssr: false })
+const PuzzleQuestGame = dynamic(() => import('@/components/games/PuzzleQuestGame'), { ssr: false })
+const MathRunnerGame = dynamic(() => import('@/components/games/MathRunnerGame'), { ssr: false })
+const WordChainGame = dynamic(() => import('@/components/games/WordChainGame'), { ssr: false })
+const JeopardyGame = dynamic(() => import('@/components/games/JeopardyGame'), { ssr: false })
+const WheelFortuneGame = dynamic(() => import('@/components/games/WheelFortuneGame'), { ssr: false })
+const TeamBattleGame = dynamic(() => import('@/components/games/TeamBattleGame'), { ssr: false })
+const FlashCardsGame = dynamic(() => import('@/components/games/FlashCardsGame'), { ssr: false })
+const MatchingPairsGame = dynamic(() => import('@/components/games/MatchingPairsGame'), { ssr: false })
+const FillBlanksGame = dynamic(() => import('@/components/games/FillBlanksGame'), { ssr: false })
+const TimeAttackGame = dynamic(() => import('@/components/games/TimeAttackGame'), { ssr: false })
 
 // 럭키 스핀 이벤트 타입
 interface LuckyEvent {
@@ -1673,7 +1685,12 @@ export default function GamePlayPage() {
   }
 
   // 전용 게임 컴포넌트 사용하는 게임 유형들
-  const specializedGameTypes = ['ESCAPE_ROOM', 'MEMORY_MATCH', 'BINGO', 'WORD_HUNT', 'SURVIVAL']
+  const specializedGameTypes = [
+    'ESCAPE_ROOM', 'MEMORY_MATCH', 'BINGO', 'WORD_HUNT', 'SURVIVAL',
+    'SPEED_RACE', 'TOWER_DEFENSE', 'PUZZLE_QUEST', 'MATH_RUNNER',
+    'WORD_CHAIN', 'JEOPARDY', 'WHEEL_FORTUNE', 'TEAM_BATTLE',
+    'FLASH_CARDS', 'MATCHING_PAIRS', 'FILL_THE_BLANKS', 'TIME_ATTACK'
+  ]
 
   // 전용 게임 완료 핸들러
   const handleSpecializedGameComplete = useCallback((finalScore: number, finalCorrectCount: number) => {
@@ -1724,6 +1741,102 @@ export default function GamePlayPage() {
       case 'SURVIVAL':
         return (
           <SurvivalGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'SPEED_RACE':
+        return (
+          <SpeedRaceGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'TOWER_DEFENSE':
+        return (
+          <TowerDefenseGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'PUZZLE_QUEST':
+        return (
+          <PuzzleQuestGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'MATH_RUNNER':
+        return (
+          <MathRunnerGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'WORD_CHAIN':
+        return (
+          <WordChainGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'JEOPARDY':
+        return (
+          <JeopardyGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'WHEEL_FORTUNE':
+        return (
+          <WheelFortuneGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'TEAM_BATTLE':
+        return (
+          <TeamBattleGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'FLASH_CARDS':
+        return (
+          <FlashCardsGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'MATCHING_PAIRS':
+        return (
+          <MatchingPairsGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'FILL_THE_BLANKS':
+        return (
+          <FillBlanksGame
+            questions={gameData.questions}
+            onComplete={handleSpecializedGameComplete}
+            timeLimit={timeLimit}
+          />
+        )
+      case 'TIME_ATTACK':
+        return (
+          <TimeAttackGame
             questions={gameData.questions}
             onComplete={handleSpecializedGameComplete}
             timeLimit={timeLimit}
