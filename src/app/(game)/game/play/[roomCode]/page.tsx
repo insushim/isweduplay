@@ -1214,6 +1214,21 @@ export default function GamePlayPage() {
     [hasAnswered, currentQuestion, timeRemaining, activeEvent]
   )
 
+  // 전용 게임 컴포넌트 사용하는 게임 유형들
+  const specializedGameTypes = [
+    'ESCAPE_ROOM', 'MEMORY_MATCH', 'BINGO', 'WORD_HUNT', 'SURVIVAL',
+    'SPEED_RACE', 'TOWER_DEFENSE', 'PUZZLE_QUEST', 'MATH_RUNNER',
+    'WORD_CHAIN', 'JEOPARDY', 'WHEEL_FORTUNE', 'TEAM_BATTLE',
+    'FLASH_CARDS', 'MATCHING_PAIRS', 'FILL_THE_BLANKS', 'TIME_ATTACK'
+  ]
+
+  // 전용 게임 완료 핸들러 - 모든 hooks는 early return 전에 선언해야 함
+  const handleSpecializedGameComplete = useCallback((finalScore: number, finalCorrectCount: number) => {
+    setScore(finalScore)
+    setCorrectCount(finalCorrectCount)
+    setStatus('FINISHED')
+  }, [])
+
   // Move to next question or finish
   useEffect(() => {
     if (status !== 'SHOWING_RESULTS') return
@@ -1246,6 +1261,17 @@ export default function GamePlayPage() {
 
     return () => clearTimeout(timer)
   }, [status, currentQuestionIndex, totalQuestions, gameData, checkLuckySpin, startLuckySpin])
+
+  // 게임 타입별 props - hooks 다음에 계산
+  const gameTimeLimit = gameData?.settings?.timeLimit || 30
+  const gameQuestions = gameData?.questions || []
+  const gameType = gameData?.gameType || ''
+
+  // 전용 게임 렌더링 여부
+  const isSpecializedGame = specializedGameTypes.includes(gameType) && status === 'IN_PROGRESS'
+
+  // ==================== 모든 HOOKS가 위에서 선언됨 ====================
+  // 아래부터는 조건부 반환(early return)이 가능
 
   // Loading state
   if (loading) {
@@ -1306,29 +1332,6 @@ export default function GamePlayPage() {
       </div>
     )
   }
-
-  // 전용 게임 컴포넌트 사용하는 게임 유형들
-  const specializedGameTypes = [
-    'ESCAPE_ROOM', 'MEMORY_MATCH', 'BINGO', 'WORD_HUNT', 'SURVIVAL',
-    'SPEED_RACE', 'TOWER_DEFENSE', 'PUZZLE_QUEST', 'MATH_RUNNER',
-    'WORD_CHAIN', 'JEOPARDY', 'WHEEL_FORTUNE', 'TEAM_BATTLE',
-    'FLASH_CARDS', 'MATCHING_PAIRS', 'FILL_THE_BLANKS', 'TIME_ATTACK'
-  ]
-
-  // 전용 게임 완료 핸들러
-  const handleSpecializedGameComplete = useCallback((finalScore: number, finalCorrectCount: number) => {
-    setScore(finalScore)
-    setCorrectCount(finalCorrectCount)
-    setStatus('FINISHED')
-  }, [])
-
-  // 게임 타입별 props
-  const gameTimeLimit = gameData?.settings?.timeLimit || 30
-  const gameQuestions = gameData?.questions || []
-  const gameType = gameData?.gameType || ''
-
-  // 전용 게임 렌더링 여부
-  const isSpecializedGame = specializedGameTypes.includes(gameType) && status === 'IN_PROGRESS'
 
   // 전용 게임 컴포넌트 렌더링 - switch 문 밖에서 조건부 렌더링
   if (isSpecializedGame && gameQuestions.length > 0) {
