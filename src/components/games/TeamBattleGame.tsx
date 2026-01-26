@@ -38,24 +38,7 @@ export default function TeamBattleGame({ questions, onComplete, timeLimit }: Tea
   const currentQuestion = questions[currentIndex]
   const activeTeam = teams[currentTeam]
 
-  // 타이머
-  useEffect(() => {
-    if (gameComplete || showResult) return
-
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          handleSubmitAnswer('')
-          return timeLimit
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [currentIndex, gameComplete, showResult, timeLimit, handleSubmitAnswer])
-
-  // 정답 제출
+  // 정답 제출 (useCallback은 useEffect보다 먼저 선언해야 함)
   const handleSubmitAnswer = useCallback((answer: string) => {
     if (!currentQuestion) return
 
@@ -101,6 +84,23 @@ export default function TeamBattleGame({ questions, onComplete, timeLimit }: Tea
       }
     }, 2000)
   }, [currentQuestion, currentTeam, activeTeam, teams, currentIndex, questions.length, timeLimit, onComplete])
+
+  // 타이머
+  useEffect(() => {
+    if (gameComplete || showResult) return
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          handleSubmitAnswer('')
+          return timeLimit
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [currentIndex, gameComplete, showResult, timeLimit, handleSubmitAnswer])
 
   if (gameComplete) {
     const winner = teams[0].score > teams[1].score ? teams[0] :

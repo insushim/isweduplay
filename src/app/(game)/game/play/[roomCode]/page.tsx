@@ -459,8 +459,15 @@ function QuestionInput({
   const [orderedItems, setOrderedItems] = useState<string[]>([])
   const [matchedPairs, setMatchedPairs] = useState<Record<string, string>>({})
   const [fillBlanks, setFillBlanks] = useState<string[]>([])
+  // MATCHING 관련 state - 조건문 밖에서 선언 (React 훅 규칙 준수)
+  const [selectedLeft, setSelectedLeft] = useState<string | null>(null)
+  const [pairs, setPairs] = useState<Record<string, string>>({})
 
   const questionType = question.type || 'MULTIPLE_CHOICE'
+
+  // MATCHING용 셔플된 오른쪽 항목 (useRef는 조건문 밖에서 선언)
+  const rightItems = questionType === 'MATCHING' ? (question.options?.filter((_, i) => i % 2 === 1) || []) : []
+  const shuffledRightRef = useRef<string[]>([])
 
   // 초기화
   useEffect(() => {
@@ -470,6 +477,14 @@ function QuestionInput({
     if (questionType === 'FILL_IN_BLANK') {
       const blankCount = (question.content.match(/_+/g) || []).length
       setFillBlanks(Array(blankCount).fill(''))
+    }
+    if (questionType === 'MATCHING') {
+      // 매칭 state 초기화
+      setSelectedLeft(null)
+      setPairs({})
+      // 셔플된 오른쪽 항목 설정
+      const rItems = question.options?.filter((_, i) => i % 2 === 1) || []
+      shuffledRightRef.current = [...rItems].sort(() => Math.random() - 0.5)
     }
   }, [question, questionType])
 
@@ -629,13 +644,8 @@ function QuestionInput({
 
   // 짝 맞추기 (MATCHING)
   if (questionType === 'MATCHING') {
-    const [selectedLeft, setSelectedLeft] = useState<string | null>(null)
-    const [pairs, setPairs] = useState<Record<string, string>>({})
-
     // options를 왼쪽/오른쪽으로 나누기 (짝수 인덱스: 왼쪽, 홀수 인덱스: 오른쪽)
     const leftItems = question.options?.filter((_, i) => i % 2 === 0) || []
-    const rightItems = question.options?.filter((_, i) => i % 2 === 1) || []
-    const shuffledRight = useRef([...rightItems].sort(() => Math.random() - 0.5))
 
     const handleLeftClick = (item: string) => {
       if (hasAnswered || pairs[item]) return
@@ -687,7 +697,7 @@ function QuestionInput({
 
           {/* 오른쪽 항목 */}
           <div className="space-y-3">
-            {shuffledRight.current.map((item, i) => {
+            {shuffledRightRef.current.map((item, i) => {
               const isMatched = Object.values(pairs).includes(item)
               return (
                 <motion.button

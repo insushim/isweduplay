@@ -62,34 +62,7 @@ export default function JeopardyGame({ questions, onComplete, timeLimit }: Jeopa
     }
   }, [answeredCount, totalQuestions, gameComplete, score, correctCount, onComplete])
 
-  // 타이머
-  useEffect(() => {
-    if (!showQuestion || showResult) return
-
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          handleSubmitAnswer('')
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [showQuestion, showResult, handleSubmitAnswer])
-
-  // 문제 선택
-  const handleSelectQuestion = (catIndex: number, qIndex: number) => {
-    if (categories[catIndex].questions[qIndex].answered) return
-
-    setSelectedQuestion({ cat: catIndex, q: qIndex })
-    setShowQuestion(true)
-    setTimeRemaining(timeLimit)
-  }
-
-  // 정답 제출
+  // 정답 제출 (useCallback은 useEffect보다 먼저 선언해야 함)
   const handleSubmitAnswer = useCallback((answer: string) => {
     if (!selectedQuestion) return
 
@@ -127,6 +100,33 @@ export default function JeopardyGame({ questions, onComplete, timeLimit }: Jeopa
       setTextAnswer('')
     }, 3000)
   }, [selectedQuestion, categories])
+
+  // 타이머
+  useEffect(() => {
+    if (!showQuestion || showResult) return
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          handleSubmitAnswer('')
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [showQuestion, showResult, handleSubmitAnswer])
+
+  // 문제 선택
+  const handleSelectQuestion = (catIndex: number, qIndex: number) => {
+    if (categories[catIndex].questions[qIndex].answered) return
+
+    setSelectedQuestion({ cat: catIndex, q: qIndex })
+    setShowQuestion(true)
+    setTimeRemaining(timeLimit)
+  }
 
   if (gameComplete) {
     return (

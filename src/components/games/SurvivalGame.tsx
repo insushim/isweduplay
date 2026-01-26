@@ -31,6 +31,21 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
 
   const currentQuestion = questions[currentIndex]
 
+  // 오답 처리 (useCallback은 useEffect보다 먼저 선언해야 함)
+  const handleWrongAnswer = useCallback(() => {
+    setIsCorrect(false)
+    setShowResult(true)
+    setStreak(0)
+    setDeathAnimation(true)
+
+    setLives(prev => {
+      const newLives = prev - 1
+      return newLives
+    })
+
+    setTimeout(() => setDeathAnimation(false), 500)
+  }, [])
+
   // 타이머
   useEffect(() => {
     if (showResult || gameOver || !currentQuestion) return
@@ -49,21 +64,6 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
 
     return () => clearInterval(timer)
   }, [showResult, gameOver, currentQuestion, currentIndex, handleWrongAnswer])
-
-  // 오답 처리
-  const handleWrongAnswer = useCallback(() => {
-    setIsCorrect(false)
-    setShowResult(true)
-    setStreak(0)
-    setDeathAnimation(true)
-
-    setLives(prev => {
-      const newLives = prev - 1
-      return newLives
-    })
-
-    setTimeout(() => setDeathAnimation(false), 500)
-  }, [])
 
   // 정답 제출
   const handleSubmitAnswer = useCallback((answer: string) => {
