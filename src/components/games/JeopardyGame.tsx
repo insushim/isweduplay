@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface JeopardyGameProps {
   questions: Question[]
@@ -77,7 +78,7 @@ export default function JeopardyGame({ questions, onComplete, timeLimit }: Jeopa
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [showQuestion, showResult])
+  }, [showQuestion, showResult, handleSubmitAnswer])
 
   // 문제 선택
   const handleSelectQuestion = (catIndex: number, qIndex: number) => {
@@ -279,58 +280,12 @@ export default function JeopardyGame({ questions, onComplete, timeLimit }: Jeopa
                     </p>
                   </div>
 
-                  {/* 답변 */}
-                  {currentQuestion.question.type === 'SHORT_ANSWER' || !currentQuestion.question.options?.length ? (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        value={textAnswer}
-                        onChange={(e) => setTextAnswer(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-                        placeholder="정답을 입력하세요..."
-                        className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-yellow-400"
-                        autoFocus
-                      />
-                      <Button
-                        onClick={() => handleSubmitAnswer(textAnswer.trim())}
-                        disabled={!textAnswer.trim()}
-                        className="w-full py-6 text-xl bg-gradient-to-r from-yellow-500 to-orange-500"
-                      >
-                        제출
-                      </Button>
-                    </div>
-                  ) : currentQuestion.question.type === 'TRUE_FALSE' ? (
-                    <div className="grid grid-cols-2 gap-6">
-                      {[
-                        { value: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-                        { value: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-                      ].map((opt) => (
-                        <motion.button
-                          key={opt.value}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleSubmitAnswer(opt.value)}
-                          className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl`}
-                        >
-                          <span className="text-5xl">{opt.icon}</span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                      {currentQuestion.question.options?.map((option, i) => (
-                        <Button
-                          key={i}
-                          onClick={() => handleSubmitAnswer(option)}
-                          className={`p-6 text-lg ${
-                            ['bg-red-600 hover:bg-red-500', 'bg-blue-600 hover:bg-blue-500', 'bg-green-600 hover:bg-green-500', 'bg-yellow-600 hover:bg-yellow-500'][i % 4]
-                          }`}
-                        >
-                          {option}
-                        </Button>
-                      ))}
-                    </div>
-                  )}
+                  {/* 답변 - 모든 유형 지원 */}
+                  <QuestionAnswer
+                    question={currentQuestion.question}
+                    onAnswer={handleSubmitAnswer}
+                    disabled={false}
+                  />
                 </div>
               )}
             </motion.div>

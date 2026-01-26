@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface SpeedRaceGameProps {
   questions: Question[]
@@ -251,69 +252,12 @@ export default function SpeedRaceGame({ questions, onComplete, timeLimit }: Spee
           </h2>
         </motion.div>
 
-        {/* 답변 */}
-        {currentQuestion.type === 'SHORT_ANSWER' || !currentQuestion.options?.length ? (
-          <div className="space-y-4">
-            <input
-              type="text"
-              value={textAnswer}
-              onChange={(e) => setTextAnswer(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-              placeholder="정답을 입력하세요..."
-              disabled={showResult}
-              className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-cyan-400"
-              autoFocus
-            />
-            <Button
-              onClick={() => handleSubmitAnswer(textAnswer.trim())}
-              disabled={!textAnswer.trim() || showResult}
-              className="w-full py-6 text-xl bg-gradient-to-r from-cyan-500 to-blue-500"
-            >
-              🚀 제출
-            </Button>
-          </div>
-        ) : currentQuestion.type === 'TRUE_FALSE' ? (
-          <div className="grid grid-cols-2 gap-6">
-            {[
-              { value: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-              { value: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-            ].map((opt) => (
-              <motion.button
-                key={opt.value}
-                whileHover={!showResult ? { scale: 1.05 } : {}}
-                whileTap={!showResult ? { scale: 0.95 } : {}}
-                onClick={() => handleSubmitAnswer(opt.value)}
-                disabled={showResult}
-                className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl ${
-                  selectedAnswer === opt.value ? 'ring-4 ring-white' : ''
-                }`}
-              >
-                <span className="text-6xl">{opt.icon}</span>
-              </motion.button>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            {currentQuestion.options?.map((option, index) => (
-              <motion.button
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={!showResult ? { scale: 1.02 } : {}}
-                onClick={() => handleSubmitAnswer(option)}
-                disabled={showResult}
-                className={`p-5 rounded-xl bg-gradient-to-r ${
-                  ['from-cyan-500 to-blue-500', 'from-green-500 to-teal-500', 'from-purple-500 to-pink-500', 'from-orange-500 to-red-500'][index % 4]
-                } text-white font-bold text-lg shadow-lg ${
-                  selectedAnswer === option ? 'ring-4 ring-white' : ''
-                }`}
-              >
-                {option}
-              </motion.button>
-            ))}
-          </div>
-        )}
+        {/* 답변 - 모든 유형 지원 */}
+        <QuestionAnswer
+          question={currentQuestion}
+          onAnswer={handleSubmitAnswer}
+          disabled={showResult}
+        />
       </div>
 
       {/* 결과 오버레이 */}

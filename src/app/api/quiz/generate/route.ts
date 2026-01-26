@@ -8,6 +8,7 @@ import {
   parseGeminiResponse,
   type QuizGenerationParams,
 } from '@/lib/gemini'
+import { runExpertGenerationWorkflow } from '@/lib/quiz-generation/expert-workflow'
 
 const generateQuizSchema = z.object({
   // 성취기준 기반 생성
@@ -47,6 +48,9 @@ const generateQuizSchema = z.object({
   saveToQuizSet: z.boolean().default(false),
   quizSetTitle: z.string().optional(),
   saveToDB: z.boolean().default(true), // 문제 은행에 저장 여부
+
+  // 전문가 모드 (고품질 문제 생성)
+  expertMode: z.boolean().default(false),
 })
 
 export async function POST(request: NextRequest) {
@@ -97,104 +101,203 @@ export async function POST(request: NextRequest) {
       learningElements = achievementStandard.learningElements
     }
 
-    // 프롬프트 구성
-    let prompt: string
+    // 전문가 모드 또는 일반 모드로 문제 생성
+    let questions: Array<{
+      type: string
+      bloomLevel: string
+      content: string
+      options: string[]
+      answer: string
+      answerExplanation?: string
+      wrongAnswerExplanation?: Record<string, string>
+      hint?: string
+      difficulty: number
+      points: number
+      tags: string[]
+      timeLimit: number
+      isAIGenerated: boolean
+      achievementStandardId?: string
+      qualityScore?: number
+      pedagogicalNotes?: string
+    }> = []
 
-    if (achievementStandard) {
-      // 성취기준 기반 문제 생성
-      const params: QuizGenerationParams = {
-        achievementStandard: {
+    let expertMetadata = null
+
+    if (validatedData.expertMode) {
+      // 전문가 모드: 4단계 워크플로우로 고품질 문제 생성
+      console.log('🎓 전문가 모드 활성화 - 고품질 문제 생성 워크플로우 시작')
+
+      const expertResult = await runExpertGenerationWorkflow({
+        topic: validatedData.topic || achievementStandard?.description || '',
+        subject: validatedData.subject,
+        gradeGroup: validatedData.gradeGroup || achievementStandard?.gradeGroup,
+        difficulty: validatedData.difficulty,
+        questionCount: validatedData.questionCount,
+        questionTypes: validatedData.questionTypes,
+        includeExplanations: validatedData.includeExplanations,
+        includeHints: validatedData.includeHints,
+        bloomLevels: validatedData.bloomLevels,
+        achievementStandard: achievementStandard ? {
           code: achievementStandard.code,
           description: achievementStandard.description,
           gradeGroup: achievementStandard.gradeGroup,
           explanation: achievementStandard.explanation || undefined,
           teachingNotes: achievementStandard.teachingNotes || undefined,
-        },
+        } : undefined,
         learningElements: learningElements?.map((le) => ({
           name: le.name,
           keywords: le.keywords,
           vocabulary: le.vocabulary,
           misconceptions: le.misconceptions || undefined,
         })),
-        questionCount: validatedData.questionCount,
-        difficulty: validatedData.difficulty,
-        questionTypes: validatedData.questionTypes,
-        includeExplanations: validatedData.includeExplanations,
-        includeHints: validatedData.includeHints,
-        bloomLevels: validatedData.bloomLevels,
-      }
-      prompt = buildQuizPrompt(params)
-    } else if (validatedData.topic) {
-      // 자유 주제 기반 문제 생성
-      prompt = buildFreeTopicPrompt(validatedData)
+      })
+
+      expertMetadata = expertResult.metadata
+
+      questions = expertResult.questions.map((q) => ({
+        type: q.type,
+        bloomLevel: q.bloomLevel || 'UNDERSTAND',
+        content: q.content,
+        options: q.options || [],
+        answer: q.answer,
+        answerExplanation: q.answerExplanation,
+        wrongAnswerExplanation: q.wrongAnswerExplanations,
+        hint: q.hint,
+        difficulty: q.difficulty || 3,
+        points: q.points || 100,
+        tags: q.keywords || [],
+        timeLimit: q.timeLimit || 30,
+        isAIGenerated: true,
+        achievementStandardId: achievementStandard?.id,
+        qualityScore: q.qualityScore,
+        pedagogicalNotes: q.pedagogicalNotes,
+      }))
+
+      // AI 생성 로그 기록 (전문가 모드)
+      await prisma.aIGenerationLog.create({
+        data: {
+          userId: session.user.id,
+          achievementStandardId: achievementStandard?.id,
+          prompt: `[EXPERT MODE] topic: ${validatedData.topic}, count: ${validatedData.questionCount}`,
+          response: JSON.stringify({ questionsGenerated: questions.length, expertMetadata }),
+          questionsGenerated: questions.length,
+          model: 'gemini-3-pro-preview (expert-workflow)',
+          success: true,
+        },
+      })
     } else {
-      return NextResponse.json(
-        { error: '성취기준 ID 또는 주제를 입력해주세요.' },
-        { status: 400 }
-      )
-    }
+      // 일반 모드: 기존 단일 프롬프트 방식
+      let prompt: string
 
-    // Gemini API 호출
-    const model = getGeminiModelForJSON('gemini-3-pro-preview')
-    const result = await model.generateContent(prompt)
-    const responseText = result.response.text()
+      if (achievementStandard) {
+        // 성취기준 기반 문제 생성
+        const params: QuizGenerationParams = {
+          achievementStandard: {
+            code: achievementStandard.code,
+            description: achievementStandard.description,
+            gradeGroup: achievementStandard.gradeGroup,
+            explanation: achievementStandard.explanation || undefined,
+            teachingNotes: achievementStandard.teachingNotes || undefined,
+          },
+          learningElements: learningElements?.map((le) => ({
+            name: le.name,
+            keywords: le.keywords,
+            vocabulary: le.vocabulary,
+            misconceptions: le.misconceptions || undefined,
+          })),
+          questionCount: validatedData.questionCount,
+          difficulty: validatedData.difficulty,
+          questionTypes: validatedData.questionTypes,
+          includeExplanations: validatedData.includeExplanations,
+          includeHints: validatedData.includeHints,
+          bloomLevels: validatedData.bloomLevels,
+        }
+        prompt = buildQuizPrompt(params)
+      } else if (validatedData.topic) {
+        // 자유 주제 기반 문제 생성
+        prompt = buildFreeTopicPrompt(validatedData)
+      } else {
+        return NextResponse.json(
+          { error: '성취기준 ID 또는 주제를 입력해주세요.' },
+          { status: 400 }
+        )
+      }
 
-    // 응답 파싱
-    const generatedData = parseGeminiResponse<{
-      questions: Array<{
-        type: string
-        bloomLevel?: string
-        content: string
-        options?: string[]
-        answer: string
-        answerExplanation?: string
-        wrongAnswerExplanations?: Record<string, string>
-        hint?: string
-        difficulty?: number
-        points?: number
-        keywords?: string[]
-        timeLimit?: number
-      }>
-    }>(responseText)
+      // Gemini API 호출
+      const model = getGeminiModelForJSON('gemini-3-pro-preview')
+      const result = await model.generateContent(prompt)
+      const responseText = result.response.text()
 
-    if (!generatedData || !generatedData.questions) {
-      // AI 생성 로그 기록 (실패)
+      // 응답 파싱
+      const generatedData = parseGeminiResponse<{
+        questions: Array<{
+          type: string
+          bloomLevel?: string
+          content: string
+          options?: string[]
+          answer: string
+          answerExplanation?: string
+          wrongAnswerExplanations?: Record<string, string>
+          hint?: string
+          difficulty?: number
+          points?: number
+          keywords?: string[]
+          timeLimit?: number
+        }>
+      }>(responseText)
+
+      if (!generatedData || !generatedData.questions) {
+        // AI 생성 로그 기록 (실패)
+        await prisma.aIGenerationLog.create({
+          data: {
+            userId: session.user.id,
+            achievementStandardId: achievementStandard?.id,
+            prompt,
+            response: responseText,
+            questionsGenerated: 0,
+            model: 'gemini-3-pro-preview',
+            success: false,
+            errorMessage: 'Failed to parse response',
+          },
+        })
+
+        return NextResponse.json(
+          { error: 'AI 응답을 파싱할 수 없습니다.' },
+          { status: 500 }
+        )
+      }
+
+      // 문제 데이터 정리
+      questions = generatedData.questions.map((q) => ({
+        type: q.type,
+        bloomLevel: q.bloomLevel || 'UNDERSTAND',
+        content: q.content,
+        options: q.options || [],
+        answer: q.answer,
+        answerExplanation: q.answerExplanation,
+        wrongAnswerExplanation: q.wrongAnswerExplanations,
+        hint: q.hint,
+        difficulty: q.difficulty || Math.ceil((validatedData.difficulty === 'easy' ? 1 : validatedData.difficulty === 'medium' ? 3 : 5) * Math.random()),
+        points: q.points || 100,
+        tags: q.keywords || [],
+        timeLimit: q.timeLimit || (validatedData.difficulty === 'easy' ? 45 : validatedData.difficulty === 'medium' ? 30 : 20),
+        isAIGenerated: true,
+        achievementStandardId: achievementStandard?.id,
+      }))
+
+      // AI 생성 로그 기록 (성공 - 일반 모드)
       await prisma.aIGenerationLog.create({
         data: {
           userId: session.user.id,
           achievementStandardId: achievementStandard?.id,
           prompt,
           response: responseText,
-          questionsGenerated: 0,
+          questionsGenerated: questions.length,
           model: 'gemini-3-pro-preview',
-          success: false,
-          errorMessage: 'Failed to parse response',
+          success: true,
         },
       })
-
-      return NextResponse.json(
-        { error: 'AI 응답을 파싱할 수 없습니다.' },
-        { status: 500 }
-      )
     }
-
-    // 문제 데이터 정리
-    const questions = generatedData.questions.map((q, index) => ({
-      type: q.type,
-      bloomLevel: q.bloomLevel || 'UNDERSTAND',
-      content: q.content,
-      options: q.options || [],
-      answer: q.answer,
-      answerExplanation: q.answerExplanation,
-      wrongAnswerExplanation: q.wrongAnswerExplanations,
-      hint: q.hint,
-      difficulty: q.difficulty || Math.ceil((validatedData.difficulty === 'easy' ? 1 : validatedData.difficulty === 'medium' ? 3 : 5) * Math.random()),
-      points: q.points || 100,
-      tags: q.keywords || [],
-      timeLimit: q.timeLimit || (validatedData.difficulty === 'easy' ? 45 : validatedData.difficulty === 'medium' ? 30 : 20),
-      isAIGenerated: true,
-      achievementStandardId: achievementStandard?.id,
-    }))
 
     // DB에 문제 저장
     let savedQuestions: Awaited<ReturnType<typeof prisma.question.create>>[] = []
@@ -217,6 +320,7 @@ export async function POST(request: NextRequest) {
               timeLimit: q.timeLimit,
               isAIGenerated: true,
               achievementStandardId: q.achievementStandardId,
+              source: validatedData.expertMode ? 'AI Expert Mode' : 'AI Generated',
             },
           })
         })
@@ -263,19 +367,6 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // AI 생성 로그 기록 (성공)
-    await prisma.aIGenerationLog.create({
-      data: {
-        userId: session.user.id,
-        achievementStandardId: achievementStandard?.id,
-        prompt,
-        response: responseText,
-        questionsGenerated: questions.length,
-        model: 'gemini-3-pro-preview',
-        success: true,
-      },
-    })
-
     return NextResponse.json({
       success: true,
       questions: savedQuestions.length > 0 ? savedQuestions : questions,
@@ -298,7 +389,9 @@ export async function POST(request: NextRequest) {
         difficulty: validatedData.difficulty,
         questionCount: questions.length,
         generatedAt: new Date().toISOString(),
-        model: 'gemini-3-pro-preview',
+        model: validatedData.expertMode ? 'gemini-3-pro-preview (expert-workflow)' : 'gemini-3-pro-preview',
+        expertMode: validatedData.expertMode,
+        expertMetadata: expertMetadata,
       },
     })
   } catch (error) {

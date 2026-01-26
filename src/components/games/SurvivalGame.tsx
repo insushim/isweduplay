@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface SurvivalGameProps {
   questions: Question[]
@@ -47,7 +48,7 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [showResult, gameOver, currentQuestion, currentIndex])
+  }, [showResult, gameOver, currentQuestion, currentIndex, handleWrongAnswer])
 
   // 오답 처리
   const handleWrongAnswer = useCallback(() => {
@@ -58,17 +59,11 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
 
     setLives(prev => {
       const newLives = prev - 1
-      if (newLives <= 0) {
-        setTimeout(() => {
-          setGameOver(true)
-          onComplete(score, correctCount)
-        }, 2000)
-      }
       return newLives
     })
 
     setTimeout(() => setDeathAnimation(false), 500)
-  }, [score, correctCount, onComplete])
+  }, [])
 
   // 정답 제출
   const handleSubmitAnswer = useCallback((answer: string) => {
@@ -102,12 +97,29 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
     }
   }, [currentQuestion, showResult, timeRemaining, streak, difficulty, lives, handleWrongAnswer])
 
+  // 게임 오버 체크
+  useEffect(() => {
+    if (lives <= 0 && !gameOver) {
+      const timer = setTimeout(() => {
+        setGameOver(true)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [lives, gameOver])
+
+  // 게임 오버 시 결과 전달
+  useEffect(() => {
+    if (gameOver) {
+      onComplete(score, correctCount)
+    }
+  }, [gameOver, score, correctCount, onComplete])
+
   // 다음 문제로
   useEffect(() => {
-    if (!showResult || gameOver) return
+    if (!showResult || gameOver || lives <= 0) return
 
     const timer = setTimeout(() => {
-      if (currentIndex < questions.length - 1 && lives > 0) {
+      if (currentIndex < questions.length - 1) {
         setCurrentIndex(prev => prev + 1)
         setSelectedAnswer(null)
         setTextAnswer('')
@@ -121,15 +133,14 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
         // 다음 문제 시간 설정 (난이도에 따라 감소)
         const newTimeLimit = Math.max(10, timeLimit - difficulty * 2)
         setTimeRemaining(newTimeLimit)
-      } else if (lives > 0) {
+      } else {
         // 모든 문제 완료
         setGameOver(true)
-        onComplete(score, correctCount)
       }
     }, 2000)
 
     return () => clearTimeout(timer)
-  }, [showResult, gameOver, currentIndex, questions.length, lives, timeLimit, difficulty, score, correctCount, onComplete])
+  }, [showResult, gameOver, currentIndex, questions.length, lives, timeLimit, difficulty])
 
   const colors = [
     'from-red-500 to-red-600',
@@ -290,69 +301,12 @@ export default function SurvivalGame({ questions, onComplete, timeLimit }: Survi
           </h2>
         </motion.div>
 
-        {/* 답변 */}
-        {currentQuestion.type === 'SHORT_ANSWER' || !currentQuestion.options?.length ? (
-          <div className="space-y-4">
-            <input
-              type="text"
-              value={textAnswer}
-              onChange={(e) => setTextAnswer(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-              placeholder="정답을 입력하세요..."
-              disabled={showResult}
-              className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-red-400 disabled:opacity-50"
-              autoFocus
-            />
-            <Button
-              onClick={() => handleSubmitAnswer(textAnswer.trim())}
-              disabled={!textAnswer.trim() || showResult}
-              className="w-full py-6 text-xl bg-gradient-to-r from-red-500 to-red-700 disabled:opacity-50"
-            >
-              💀 제출
-            </Button>
-          </div>
-        ) : currentQuestion.type === 'TRUE_FALSE' ? (
-          <div className="grid grid-cols-2 gap-6">
-            {[
-              { value: 'O', label: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-              { value: 'X', label: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-            ].map((opt) => (
-              <motion.button
-                key={opt.value}
-                whileHover={!showResult ? { scale: 1.05 } : {}}
-                whileTap={!showResult ? { scale: 0.95 } : {}}
-                onClick={() => handleSubmitAnswer(opt.value)}
-                disabled={showResult}
-                className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl ${
-                  selectedAnswer === opt.value ? 'ring-4 ring-white' : ''
-                } ${showResult && selectedAnswer !== opt.value ? 'opacity-40' : ''}`}
-              >
-                <span className="text-6xl block mb-2">{opt.icon}</span>
-                <span className="text-3xl">{opt.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {currentQuestion.options?.map((option, index) => (
-              <motion.button
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={!showResult ? { scale: 1.02 } : {}}
-                whileTap={!showResult ? { scale: 0.98 } : {}}
-                onClick={() => handleSubmitAnswer(option)}
-                disabled={showResult}
-                className={`p-5 rounded-xl bg-gradient-to-r ${colors[index % 4]} text-white font-bold text-lg shadow-lg ${
-                  selectedAnswer === option ? 'ring-4 ring-white' : ''
-                } ${showResult && selectedAnswer !== option ? 'opacity-40' : ''}`}
-              >
-                {option}
-              </motion.button>
-            ))}
-          </div>
-        )}
+        {/* 답변 - 모든 유형 지원 */}
+        <QuestionAnswer
+          question={currentQuestion}
+          onAnswer={handleSubmitAnswer}
+          disabled={showResult}
+        />
       </div>
 
       {/* 결과 오버레이 */}

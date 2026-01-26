@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface WheelFortuneGameProps {
   questions: Question[]
@@ -266,59 +267,13 @@ export default function WheelFortuneGame({ questions, onComplete, timeLimit }: W
               </h2>
             </div>
 
-            {/* 답변 */}
-            {currentQuestion?.type === 'SHORT_ANSWER' || !currentQuestion?.options?.length ? (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-                  placeholder="정답을 입력하세요..."
-                  className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-purple-400"
-                  autoFocus
-                />
-                <Button
-                  onClick={() => handleSubmitAnswer(textAnswer.trim())}
-                  disabled={!textAnswer.trim()}
-                  className="w-full py-6 text-xl bg-gradient-to-r from-purple-500 to-fuchsia-500"
-                >
-                  제출
-                </Button>
-              </div>
-            ) : currentQuestion?.type === 'TRUE_FALSE' ? (
-              <div className="grid grid-cols-2 gap-6">
-                {[
-                  { value: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-                  { value: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-                ].map((opt) => (
-                  <motion.button
-                    key={opt.value}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleSubmitAnswer(opt.value)}
-                    disabled={showResult}
-                    className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl`}
-                  >
-                    <span className="text-5xl">{opt.icon}</span>
-                  </motion.button>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {currentQuestion?.options?.map((option, i) => (
-                  <Button
-                    key={i}
-                    onClick={() => handleSubmitAnswer(option)}
-                    disabled={showResult}
-                    className={`p-6 text-lg ${
-                      ['bg-purple-600', 'bg-fuchsia-600', 'bg-pink-600', 'bg-rose-600'][i % 4]
-                    }`}
-                  >
-                    {option}
-                  </Button>
-                ))}
-              </div>
+            {/* 답변 - 모든 유형 지원 */}
+            {currentQuestion && (
+              <QuestionAnswer
+                question={currentQuestion}
+                onAnswer={handleSubmitAnswer}
+                disabled={showResult}
+              />
             )}
           </motion.div>
         </div>

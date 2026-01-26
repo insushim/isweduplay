@@ -87,6 +87,7 @@ export default function QuizCreatePage() {
   const [questionCount, setQuestionCount] = useState(10)
   const [questionTypes, setQuestionTypes] = useState<string[]>(['MULTIPLE_CHOICE'])
   const [quizTitle, setQuizTitle] = useState('')
+  const [expertMode, setExpertMode] = useState(false)
 
   // 결과
   const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([])
@@ -151,6 +152,7 @@ export default function QuizCreatePage() {
         includeExplanations: true,
         saveToQuizSet: true,
         saveToDB: true,
+        expertMode,
         quizSetTitle: quizTitle || (mode === 'curriculum'
           ? achievementStandards.find(s => s.id === selectedStandard)?.description.slice(0, 50)
           : freeTopic),
@@ -493,6 +495,51 @@ export default function QuizCreatePage() {
               </p>
             </div>
 
+            {/* 전문가 모드 */}
+            <div className="mb-6">
+              <button
+                onClick={() => setExpertMode(!expertMode)}
+                className={`w-full p-4 rounded-xl transition-all flex items-center gap-4 ${
+                  expertMode
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white ring-2 ring-white'
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                <div className="text-3xl">{expertMode ? '🎓' : '⚡'}</div>
+                <div className="flex-1 text-left">
+                  <div className="font-medium flex items-center gap-2">
+                    전문가 모드
+                    {expertMode && <span className="px-2 py-0.5 bg-white/20 rounded text-xs">활성화</span>}
+                  </div>
+                  <div className="text-sm opacity-70">
+                    {expertMode
+                      ? '4단계 워크플로우로 고품질 문제 생성 (시간 소요 ↑)'
+                      : '학습 목표 분석, 문항 청사진 설계, 품질 검증 포함'}
+                  </div>
+                </div>
+                <div className={`w-12 h-6 rounded-full relative transition-colors ${
+                  expertMode ? 'bg-white/30' : 'bg-white/10'
+                }`}>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
+                    expertMode ? 'right-1' : 'left-1'
+                  }`} />
+                </div>
+              </button>
+              {expertMode && (
+                <div className="mt-3 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                  <p className="text-amber-200 text-sm">
+                    <span className="font-medium">📚 전문가 모드 워크플로우:</span>
+                  </p>
+                  <ol className="text-amber-200/80 text-xs mt-2 space-y-1 list-decimal list-inside">
+                    <li>학습 목표 및 핵심 개념 분석</li>
+                    <li>Bloom's Taxonomy 기반 문항 청사진 설계</li>
+                    <li>교육학적 원칙에 따른 문제 생성</li>
+                    <li>품질 검증 및 오류 교정</li>
+                  </ol>
+                </div>
+              )}
+            </div>
+
             {/* 요약 */}
             <Card className="p-4 bg-white/5 border-white/10 mb-6">
               <h3 className="font-medium text-white mb-2">퀴즈 요약</h3>
@@ -502,6 +549,9 @@ export default function QuizCreatePage() {
                 <p>• 주제: {mode === 'curriculum' ? selectedStandardData?.description?.slice(0, 50) : freeTopic}</p>
                 <p>• 난이도: {DIFFICULTY_OPTIONS.find(d => d.value === difficulty)?.label}</p>
                 <p>• 문제 수: {questionCount}개</p>
+                {expertMode && (
+                  <p className="text-amber-300">• 🎓 전문가 모드 활성화 (고품질 문제 생성)</p>
+                )}
               </div>
             </Card>
 

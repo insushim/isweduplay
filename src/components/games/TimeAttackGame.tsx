@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface TimeAttackGameProps {
   questions: Question[]
@@ -21,12 +22,9 @@ export default function TimeAttackGame({ questions, onComplete, timeLimit }: Tim
   const [showResult, setShowResult] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [gameComplete, setGameComplete] = useState(false)
-  const [textAnswer, setTextAnswer] = useState('')
   const [streak, setStreak] = useState(0)
   const [comboMultiplier, setComboMultiplier] = useState(1)
   const [showTimeBonus, setShowTimeBonus] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
   const currentQuestion = questions[currentIndex]
 
   // 타이머
@@ -100,11 +98,9 @@ export default function TimeAttackGame({ questions, onComplete, timeLimit }: Tim
     setTimeout(() => {
       setShowResult(false)
       setSelectedAnswer(null)
-      setTextAnswer('')
 
       if (currentIndex < questions.length - 1) {
         setCurrentIndex(prev => prev + 1)
-        inputRef.current?.focus()
       } else {
         setGameComplete(true)
         onComplete(score + (correct ? 100 : 0), correctCount + (correct ? 1 : 0))
@@ -242,68 +238,12 @@ export default function TimeAttackGame({ questions, onComplete, timeLimit }: Tim
               </h2>
             </div>
 
-            {/* 답변 옵션 */}
-            {currentQuestion.type === 'SHORT_ANSWER' || !currentQuestion.options?.length ? (
-              <div className="space-y-4">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-                  placeholder="빠르게 정답을 입력하세요!"
-                  className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-orange-400"
-                  autoFocus
-                  disabled={showResult}
-                />
-                <Button
-                  onClick={() => handleSubmitAnswer(textAnswer.trim())}
-                  disabled={!textAnswer.trim() || showResult}
-                  className="w-full py-6 text-xl bg-gradient-to-r from-orange-500 to-red-500"
-                >
-                  제출 ⚡
-                </Button>
-              </div>
-            ) : currentQuestion.type === 'TRUE_FALSE' ? (
-              <div className="grid grid-cols-2 gap-6">
-                {[
-                  { value: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-                  { value: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-                ].map((opt) => (
-                  <motion.button
-                    key={opt.value}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleSubmitAnswer(opt.value)}
-                    disabled={showResult}
-                    className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl disabled:opacity-50`}
-                  >
-                    <span className="text-5xl">{opt.icon}</span>
-                  </motion.button>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {currentQuestion.options?.map((option, i) => (
-                  <motion.button
-                    key={i}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSubmitAnswer(option)}
-                    disabled={showResult}
-                    className={`p-6 text-lg font-bold rounded-xl transition-all ${
-                      showResult && option.toLowerCase().trim() === currentQuestion.answer.toLowerCase().trim()
-                        ? 'bg-green-500'
-                        : showResult && selectedAnswer === option
-                          ? 'bg-red-500'
-                          : 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500'
-                    } text-white disabled:opacity-70`}
-                  >
-                    {option}
-                  </motion.button>
-                ))}
-              </div>
-            )}
+            {/* 답변 옵션 - 모든 유형 지원 */}
+            <QuestionAnswer
+              question={currentQuestion}
+              onAnswer={handleSubmitAnswer}
+              disabled={showResult}
+            />
           </motion.div>
         </div>
       )}

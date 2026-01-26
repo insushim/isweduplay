@@ -118,6 +118,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="username"
                   className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-yellow-400"
                   required
                 />
@@ -132,6 +133,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="current-password"
                   className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-yellow-400"
                   required
                 />

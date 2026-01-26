@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import type { Question } from '@/types/game'
+import QuestionAnswer from './QuestionAnswer'
 
 interface TeamBattleGameProps {
   questions: Question[]
@@ -31,9 +32,9 @@ export default function TeamBattleGame({ questions, onComplete, timeLimit }: Tea
   const [showResult, setShowResult] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [gameComplete, setGameComplete] = useState(false)
-  const [textAnswer, setTextAnswer] = useState('')
   const [battleEffect, setBattleEffect] = useState<string | null>(null)
 
+  const [textAnswer, setTextAnswer] = useState('')
   const currentQuestion = questions[currentIndex]
   const activeTeam = teams[currentTeam]
 
@@ -52,7 +53,7 @@ export default function TeamBattleGame({ questions, onComplete, timeLimit }: Tea
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [currentIndex, gameComplete, showResult, timeLimit])
+  }, [currentIndex, gameComplete, showResult, timeLimit, handleSubmitAnswer])
 
   // 정답 제출
   const handleSubmitAnswer = useCallback((answer: string) => {
@@ -206,65 +207,12 @@ export default function TeamBattleGame({ questions, onComplete, timeLimit }: Tea
               </h2>
             </div>
 
-            {/* 답변 옵션 */}
-            {currentQuestion.type === 'SHORT_ANSWER' || !currentQuestion.options?.length ? (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && textAnswer.trim() && handleSubmitAnswer(textAnswer.trim())}
-                  placeholder="정답을 입력하세요..."
-                  className="w-full px-6 py-4 text-xl bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-yellow-400"
-                  autoFocus
-                  disabled={showResult}
-                />
-                <Button
-                  onClick={() => handleSubmitAnswer(textAnswer.trim())}
-                  disabled={!textAnswer.trim() || showResult}
-                  className={`w-full py-6 text-xl bg-gradient-to-r ${activeTeam.color}`}
-                >
-                  제출
-                </Button>
-              </div>
-            ) : currentQuestion.type === 'TRUE_FALSE' ? (
-              <div className="grid grid-cols-2 gap-6">
-                {[
-                  { value: 'O', color: 'from-blue-500 to-blue-700', icon: '⭕' },
-                  { value: 'X', color: 'from-red-500 to-red-700', icon: '❌' }
-                ].map((opt) => (
-                  <motion.button
-                    key={opt.value}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleSubmitAnswer(opt.value)}
-                    disabled={showResult}
-                    className={`p-8 rounded-2xl bg-gradient-to-r ${opt.color} text-white font-bold shadow-xl disabled:opacity-50`}
-                  >
-                    <span className="text-5xl">{opt.icon}</span>
-                  </motion.button>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {currentQuestion.options?.map((option, i) => (
-                  <Button
-                    key={i}
-                    onClick={() => handleSubmitAnswer(option)}
-                    disabled={showResult}
-                    className={`p-6 text-lg ${
-                      showResult && option.toLowerCase().trim() === currentQuestion.answer.toLowerCase().trim()
-                        ? 'bg-green-600'
-                        : showResult && selectedAnswer === option
-                          ? 'bg-red-600'
-                          : ['bg-red-600 hover:bg-red-500', 'bg-blue-600 hover:bg-blue-500', 'bg-green-600 hover:bg-green-500', 'bg-yellow-600 hover:bg-yellow-500'][i % 4]
-                    }`}
-                  >
-                    {option}
-                  </Button>
-                ))}
-              </div>
-            )}
+            {/* 답변 옵션 - 모든 유형 지원 */}
+            <QuestionAnswer
+              question={currentQuestion}
+              onAnswer={handleSubmitAnswer}
+              disabled={showResult}
+            />
           </motion.div>
         </div>
       )}
