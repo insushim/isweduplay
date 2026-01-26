@@ -1322,244 +1322,141 @@ export default function GamePlayPage() {
     setStatus('FINISHED')
   }, [])
 
-  // 전용 게임 컴포넌트 렌더링
-  const renderSpecializedGame = () => {
-    if (!gameData?.questions?.length) return null
+  // 게임 타입별 props
+  const gameTimeLimit = gameData?.settings?.timeLimit || 30
+  const gameQuestions = gameData?.questions || []
+  const gameType = gameData?.gameType || ''
 
-    const timeLimit = gameData?.settings?.timeLimit || 30
+  // 전용 게임 렌더링 여부
+  const isSpecializedGame = specializedGameTypes.includes(gameType) && status === 'IN_PROGRESS'
 
-    switch (gameData?.gameType) {
+  // 전용 게임 컴포넌트 렌더링 - switch 문 밖에서 조건부 렌더링
+  if (isSpecializedGame && gameQuestions.length > 0) {
+    switch (gameType) {
       case 'ESCAPE_ROOM':
-        return (
-          <EscapeRoomGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <EscapeRoomGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'MEMORY_MATCH':
-        return (
-          <MemoryMatchGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <MemoryMatchGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'BINGO':
-        return (
-          <BingoGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <BingoGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'WORD_HUNT':
-        return (
-          <WordHuntGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <WordHuntGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'SURVIVAL':
-        return (
-          <SurvivalGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <SurvivalGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'SPEED_RACE':
-        return (
-          <SpeedRaceGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <SpeedRaceGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'TOWER_DEFENSE':
-        return (
-          <TowerDefenseGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <TowerDefenseGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'PUZZLE_QUEST':
-        return (
-          <PuzzleQuestGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <PuzzleQuestGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'MATH_RUNNER':
-        return (
-          <MathRunnerGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <MathRunnerGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'WORD_CHAIN':
-        return (
-          <WordChainGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <WordChainGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'JEOPARDY':
-        return (
-          <JeopardyGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <JeopardyGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'WHEEL_FORTUNE':
-        return (
-          <WheelFortuneGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <WheelFortuneGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'TEAM_BATTLE':
-        return (
-          <TeamBattleGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <TeamBattleGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'FLASH_CARDS':
-        return (
-          <FlashCardsGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <FlashCardsGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'MATCHING_PAIRS':
-        return (
-          <MatchingPairsGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <MatchingPairsGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'FILL_THE_BLANKS':
-        return (
-          <FillBlanksGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
+        return <FillBlanksGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
       case 'TIME_ATTACK':
-        return (
-          <TimeAttackGame
-            questions={gameData.questions}
-            onComplete={handleSpecializedGameComplete}
-            timeLimit={timeLimit}
-          />
-        )
-      default:
-        return null
+        return <TimeAttackGame questions={gameQuestions} onComplete={handleSpecializedGameComplete} timeLimit={gameTimeLimit} />
     }
   }
 
   // Render based on game status
-  switch (status) {
-    case 'WAITING':
-      return (
-        <WaitingRoom
-          roomCode={roomCode}
-          isHost={isHost}
-          playerCount={1}
-          onStart={handleStartGame}
-        />
-      )
-
-    case 'COUNTDOWN':
-      return <CountdownScreen seconds={countdownSeconds} />
-
-    case 'IN_PROGRESS':
-      // 전용 게임 컴포넌트 사용
-      if (specializedGameTypes.includes(gameData?.gameType || '')) {
-        return renderSpecializedGame()
-      }
-
-      // 기본 퀴즈 형식
-      return currentQuestion ? (
-        <>
-          {/* 럭키 스핀 모달 */}
-          {showLuckySpin && (
-            <LuckySpinWheel
-              isSpinning={isSpinning}
-              selectedEvent={selectedLuckyEvent}
-              onSpinComplete={handleSpinComplete}
-            />
-          )}
-
-          {/* 활성 이벤트 배지 */}
-          <AnimatePresence>
-            {activeEvent && <ActiveEventBadge event={activeEvent} />}
-          </AnimatePresence>
-
-          <QuestionScreen
-            question={currentQuestion}
-            questionIndex={currentQuestionIndex}
-            totalQuestions={totalQuestions}
-            timeRemaining={timeRemaining}
-            onAnswer={handleAnswer}
-            hasAnswered={hasAnswered}
-            selectedAnswer={selectedAnswer}
-            players={[
-              { id: session?.user?.id || 'me', name: session?.user?.name || '나', score: score }
-            ]}
-            currentPlayerId={session?.user?.id || 'me'}
-            currentScore={score}
-            gameType={gameData?.gameType}
-          />
-        </>
-      ) : null
-
-    case 'SHOWING_RESULTS':
-      return lastAnswerResult && currentQuestion ? (
-        <ResultsScreen
-          isCorrect={lastAnswerResult.isCorrect}
-          points={lastAnswerResult.points}
-          streak={streak}
-          correctAnswer={currentQuestion.answer}
-          explanation={currentQuestion.explanation}
-          bonusPoints={lastAnswerResult.bonusPoints}
-          eventApplied={lastAnswerResult.eventApplied}
-          stolenPoints={stolenPoints > 0 ? stolenPoints : undefined}
-          mysteryBonus={mysteryBonus > 0 ? mysteryBonus : undefined}
-        />
-      ) : null
-
-    case 'FINISHED':
-      return (
-        <FinalResultsScreen
-          score={score}
-          correctCount={correctCount}
-          totalQuestions={totalQuestions}
-          maxStreak={maxStreak}
-        />
-      )
-
-    default:
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-900">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full"
-          />
-        </div>
-      )
+  if (status === 'WAITING') {
+    return (
+      <WaitingRoom
+        roomCode={roomCode}
+        isHost={isHost}
+        playerCount={1}
+        onStart={handleStartGame}
+      />
+    )
   }
+
+  if (status === 'COUNTDOWN') {
+    return <CountdownScreen seconds={countdownSeconds} />
+  }
+
+  if (status === 'IN_PROGRESS' && currentQuestion) {
+    return (
+      <>
+        {/* 럭키 스핀 모달 */}
+        {showLuckySpin && (
+          <LuckySpinWheel
+            isSpinning={isSpinning}
+            selectedEvent={selectedLuckyEvent}
+            onSpinComplete={handleSpinComplete}
+          />
+        )}
+
+        {/* 활성 이벤트 배지 */}
+        <AnimatePresence>
+          {activeEvent && <ActiveEventBadge event={activeEvent} />}
+        </AnimatePresence>
+
+        <QuestionScreen
+          question={currentQuestion}
+          questionIndex={currentQuestionIndex}
+          totalQuestions={totalQuestions}
+          timeRemaining={timeRemaining}
+          onAnswer={handleAnswer}
+          hasAnswered={hasAnswered}
+          selectedAnswer={selectedAnswer}
+          players={[
+            { id: session?.user?.id || 'me', name: session?.user?.name || '나', score: score }
+          ]}
+          currentPlayerId={session?.user?.id || 'me'}
+          currentScore={score}
+          gameType={gameData?.gameType}
+        />
+      </>
+    )
+  }
+
+  if (status === 'SHOWING_RESULTS' && lastAnswerResult && currentQuestion) {
+    return (
+      <ResultsScreen
+        isCorrect={lastAnswerResult.isCorrect}
+        points={lastAnswerResult.points}
+        streak={streak}
+        correctAnswer={currentQuestion.answer}
+        explanation={currentQuestion.explanation}
+        bonusPoints={lastAnswerResult.bonusPoints}
+        eventApplied={lastAnswerResult.eventApplied}
+        stolenPoints={stolenPoints > 0 ? stolenPoints : undefined}
+        mysteryBonus={mysteryBonus > 0 ? mysteryBonus : undefined}
+      />
+    )
+  }
+
+  if (status === 'FINISHED') {
+    return (
+      <FinalResultsScreen
+        score={score}
+        correctCount={correctCount}
+        totalQuestions={totalQuestions}
+        maxStreak={maxStreak}
+      />
+    )
+  }
+
+  // default loading
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-900">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full"
+      />
+    </div>
+  )
 }
